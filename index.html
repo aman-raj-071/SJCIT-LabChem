@@ -1,0 +1,2728 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SJCIT LabChem Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #050a0e;
+  --surface: #0b1219;
+  --surface2: #0f1a24;
+  --surface3: #152030;
+  --border: #1a2e3d;
+  --accent: #00e5a0;
+  --accent2: #00b8ff;
+  --accent-bg: rgba(0,229,160,0.08);
+  --text: #e2f0f8;
+  --muted: #5a7a8a;
+  --glow: 0 0 18px rgba(0,229,160,0.35);
+  --glow2: 0 0 18px rgba(0,184,255,0.3);
+  --danger-bg: #1a0a0a; --danger: #ff5c5c; --danger-border: #3d1515;
+  --warn-bg: #1a1200;   --warn: #ffc94d;   --warn-border: #3d2e00;
+  --info-bg: #050f1f;   --info: #4db8ff;   --info-border: #0a2040;
+  --low-bg: rgba(0,229,160,0.08); --low: #00e5a0;
+  --med-bg: rgba(255,201,77,0.08); --med: #ffc94d;
+  --high-bg: rgba(255,92,92,0.08); --high: #ff5c5c;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius: 12px;
+}
+
+/* ── MOLECULE CANVAS BACKGROUND ── */
+#moleculeCanvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; opacity: 0.35;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+  position: relative;
+}
+
+/* ── HEADER ── */
+header {
+  background: rgba(11,18,25,0.92);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 200;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(0,229,160,0.12);
+}
+.header-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 10px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, #00e5a0, #00b8ff);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0; color: #050a0e; font-weight: 700;
+  font-family: var(--font-mono);
+  box-shadow: var(--glow);
+}
+.brand-name {
+  font-size: 16px; font-weight: 700; line-height: 1.1;
+  background: linear-gradient(90deg, #00e5a0, #00b8ff);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.brand-sub { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+.header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.search-wrap { position: relative; min-width: 220px; max-width: 320px; }
+.search-wrap input {
+  width: 100%; padding: 8px 36px 8px 14px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface2); color: var(--text);
+  font-family: inherit; font-size: 13px; outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.search-wrap input:focus { border-color: var(--accent); box-shadow: var(--glow); }
+.search-clear {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 13px; display: none; padding: 2px;
+}
+.search-clear.visible { display: block; }
+
+.hdr-select {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface2); color: var(--text);
+  font-family: inherit; font-size: 13px; outline: none;
+  transition: border-color 0.2s;
+}
+.hdr-select:focus { border-color: var(--accent); }
+
+/* ── NAV TABS ── */
+.nav-tabs {
+  background: rgba(11,18,25,0.95);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 61px; z-index: 190;
+  backdrop-filter: blur(12px);
+}
+.nav-tabs-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 24px;
+  display: flex; gap: 0; overflow-x: auto;
+}
+.nav-tab {
+  padding: 12px 20px; border: none; border-bottom: 2px solid transparent;
+  background: none; cursor: pointer; font-family: inherit; font-size: 13px;
+  color: var(--muted); white-space: nowrap; font-weight: 500;
+  transition: color 0.2s, border-color 0.2s, text-shadow 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  color: var(--accent); border-bottom-color: var(--accent); font-weight: 600;
+  text-shadow: 0 0 12px rgba(0,229,160,0.6);
+}
+.nav-tab .tab-badge {
+  background: var(--accent-bg); color: var(--accent);
+  font-size: 10px; padding: 1px 6px; border-radius: 10px;
+  font-family: var(--font-mono);
+}
+
+main { max-width: 1280px; margin: 0 auto; padding: 24px 24px; position: relative; z-index: 1; }
+
+/* ── STATS ── */
+.stats { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 20px; text-align: center; flex: 1; min-width: 80px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  position: relative; overflow: hidden;
+}
+.stat::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  opacity: 0; transition: opacity 0.3s;
+}
+.stat:hover { border-color: var(--accent); box-shadow: var(--glow); }
+.stat:hover::before { opacity: 1; }
+.stat-n { font-size: 24px; font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
+.stat-l { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+/* ── FILTERS ── */
+.filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 6px 16px; border-radius: 20px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-size: 12px; font-family: inherit;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.filter-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--muted); }
+.filter-btn.active {
+  border-color: var(--accent); background: var(--accent-bg);
+  color: var(--accent); box-shadow: 0 0 10px rgba(0,229,160,0.2);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* ── CARD GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px; margin-bottom: 28px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s, border-color 0.25s;
+  position: relative;
+}
+.card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), var(--glow);
+  border-color: var(--accent);
+}
+.card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg), var(--glow); }
+
+.card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: transparent; transition: background 0.3s;
+}
+.card.stock-ok::after    { background: var(--accent); }
+.card.stock-low::after   { background: #ffc94d; }
+.card.stock-empty::after { background: #ff5c5c; }
+
+.card-img-wrap { position: relative; height: 130px; overflow: hidden; background: var(--surface2); }
+.card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.card:hover .card-img-wrap img { transform: scale(1.08); }
+.card-img-placeholder { width: 100%; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: var(--surface2); }
+
+.ai-bottle-wrap { width: 100%; height: 130px; display: flex; align-items: center; justify-content: center; background: var(--surface2); position: relative; overflow: hidden; }
+.ai-bottle-wrap svg { max-height: 120px; width: auto; }
+.ai-bottle-label { position: absolute; bottom: 5px; right: 6px; font-size: 9px; padding: 2px 5px; border-radius: 4px; background: rgba(0,229,160,0.85); color: #050a0e; font-family: var(--font-mono); font-weight: 700; }
+.bottle-loading { width: 100%; height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--surface2); gap: 5px; }
+.bottle-spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+.bottle-spinner-text { font-size: 10px; color: var(--muted); }
+
+.haz-badge { position: absolute; top: 7px; right: 7px; font-size: 9px; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.5px; }
+.haz-low    { background: rgba(0,229,160,0.15);  color: var(--low);  border: 1px solid rgba(0,229,160,0.3); }
+.haz-medium { background: rgba(255,201,77,0.15);  color: var(--med);  border: 1px solid rgba(255,201,77,0.3); }
+.haz-high   { background: rgba(255,92,92,0.15);   color: var(--high); border: 1px solid rgba(255,92,92,0.3); }
+.cat-badge  { position: absolute; top: 7px; left: 7px; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.65); color: var(--accent2); font-family: var(--font-mono); text-transform: uppercase; border: 1px solid rgba(0,184,255,0.2); }
+
+.card-body { padding: 13px; }
+.c-formula { font-family: var(--font-mono); font-size: 10px; color: var(--accent); margin-bottom: 3px; letter-spacing: 0.5px; }
+.c-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 5px; line-height: 1.3; }
+.c-desc { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+.c-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.c-tag  { font-size: 10px; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); background: var(--surface2); }
+
+.stock-badge { position: absolute; bottom: 7px; right: 7px; font-size: 10px; padding: 2px 7px; border-radius: 5px; font-family: var(--font-mono); font-weight: 600; }
+.stock-badge.ok    { background: var(--low-bg);  color: var(--low); }
+.stock-badge.low   { background: var(--med-bg);  color: var(--med); }
+.stock-badge.empty { background: var(--high-bg); color: var(--high); }
+
+/* ── DETAIL PANEL ── */
+.detail-panel { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+.detail-panel.open { display: block; animation: fadeUp 0.3s ease; }
+.det-img { width: 100%; height: 220px; object-fit: cover; display: block; }
+.det-ph  { width: 100%; height: 220px; display: flex; align-items: center; justify-content: center; font-size: 80px; background: var(--surface2); }
+.det-struct-wrap { display: flex; justify-content: center; align-items: center; background: var(--surface2); padding: 20px; min-height: 180px; }
+.det-body { padding: 24px; }
+.det-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.det-formula { font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-bottom: 4px; letter-spacing: 1px; }
+.det-name  { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 3px; }
+.det-iupac { font-size: 11px; color: var(--muted); }
+.close-btn { padding: 7px 11px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 15px; cursor: pointer; transition: all 0.15s; }
+.close-btn:hover { background: var(--high-bg); color: var(--high); border-color: var(--high); }
+.det-section-title { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); padding-bottom: 8px; border-bottom: 1px solid var(--border); margin: 18px 0 10px; }
+.props-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.prop { background: var(--surface2); border-radius: 8px; padding: 10px 12px; border: 1px solid var(--border); transition: border-color 0.2s; }
+.prop:hover { border-color: var(--accent); }
+.prop-label { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+.prop-value { font-size: 12px; font-weight: 500; color: var(--accent); font-family: var(--font-mono); }
+.uses-wrap { display: flex; gap: 7px; flex-wrap: wrap; }
+.use-chip { font-size: 12px; padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(0,229,160,0.3); color: var(--accent); background: var(--accent-bg); transition: all 0.15s; }
+.use-chip:hover { background: rgba(0,229,160,0.15); box-shadow: 0 0 8px rgba(0,229,160,0.2); }
+.safety-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 13px; border-radius: 8px; font-size: 12px; margin-bottom: 7px; line-height: 1.55; }
+.safety-item .si-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.safety-item.danger  { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.safety-item.caution { background: var(--warn-bg);   color: var(--warn);   border: 1px solid var(--warn-border); }
+.safety-item.info    { background: var(--info-bg);   color: var(--info);   border: 1px solid var(--info-border); }
+.ask-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+.ask-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+.ask-btn:hover { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px rgba(0,229,160,0.2); }
+
+/* ── SECTION PANELS ── */
+.section-panel { display: none; }
+.section-panel.active { display: block; animation: fadeUp 0.25s ease; }
+
+/* ── REACTION SIMULATOR ── */
+.rxn-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 26px; margin-bottom: 20px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+}
+.rxn-title { font-size: 20px; font-weight: 700; margin-bottom: 5px; color: var(--text); }
+.rxn-sub   { font-size: 12px; color: var(--muted); margin-bottom: 22px; }
+
+.rxn-selectors { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin-bottom: 22px; }
+.rxn-slot {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; text-align: center; min-height: 90px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; transition: all 0.25s;
+}
+.rxn-slot.filled { border-color: var(--accent); background: var(--accent-bg); box-shadow: var(--glow); }
+.rxn-slot-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.rxn-slot-formula { font-family: var(--font-mono); font-size: 14px; color: var(--accent); font-weight: 700; text-shadow: 0 0 10px rgba(0,229,160,0.5); }
+.rxn-slot-name { font-size: 12px; color: var(--text); }
+.rxn-plus { font-size: 28px; font-weight: 700; color: var(--accent); text-align: center; text-shadow: var(--glow); }
+.rxn-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+.rxn-select {
+  flex: 1; min-width: 180px; padding: 10px 13px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface2); color: var(--text);
+  font-family: inherit; font-size: 13px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.rxn-select:focus { border-color: var(--accent); box-shadow: var(--glow); }
+.btn-primary {
+  padding: 10px 22px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #050a0e; border: none; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 700; transition: all 0.2s;
+  display: flex; align-items: center; gap: 7px;
+  box-shadow: var(--glow);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,229,160,0.5); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-secondary {
+  padding: 10px 16px; border-radius: 8px;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); cursor: pointer;
+  font-family: inherit; font-size: 13px; transition: all 0.2s;
+}
+.btn-secondary:hover { background: var(--surface2); color: var(--text); border-color: var(--muted); }
+
+.rxn-result {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+  font-size: 13px; line-height: 1.75; display: none;
+  animation: fadeUp 0.3s ease;
+}
+.rxn-result.visible { display: block; }
+.rxn-result h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+.rxn-result .equation {
+  font-family: var(--font-mono); font-size: 13px;
+  background: var(--surface); border: 1px solid rgba(0,229,160,0.3);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 14px;
+  color: var(--accent); box-shadow: inset 0 0 20px rgba(0,229,160,0.05);
+}
+.rxn-loading { display: none; align-items: center; gap: 10px; padding: 16px; color: var(--muted); font-size: 13px; }
+.rxn-loading.visible { display: flex; }
+
+.quick-picks { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 18px; }
+.qp-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); margin-right: 4px; align-self: center; }
+.qp-chip {
+  font-size: 11px; padding: 4px 12px; border-radius: 6px;
+  border: 1px solid var(--border); color: var(--muted);
+  background: var(--surface2); cursor: pointer; font-family: var(--font-mono);
+  transition: all 0.2s;
+}
+.qp-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); box-shadow: 0 0 8px rgba(0,229,160,0.2); }
+
+/* ── EXPERIMENT GUIDE ── */
+.exp-layout { display: grid; grid-template-columns: 250px 1fr; gap: 18px; }
+.exp-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.exp-list-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent); font-weight: 700; }
+.exp-chem-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+.exp-chem-item:hover { background: var(--surface2); }
+.exp-chem-item.active { background: var(--accent-bg); border-left: 3px solid var(--accent); }
+.exp-chem-formula { font-family: var(--font-mono); font-size: 10px; color: var(--accent); }
+.exp-chem-name { font-size: 12px; color: var(--text); font-weight: 500; }
+.exp-chem-count { margin-left: auto; font-size: 10px; background: var(--surface3); color: var(--muted); padding: 1px 7px; border-radius: 10px; font-family: var(--font-mono); }
+
+.exp-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.exp-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--muted); gap: 12px; }
+.exp-placeholder-icon { font-size: 52px; filter: drop-shadow(0 0 12px rgba(0,229,160,0.3)); }
+.exp-cards { display: flex; flex-direction: column; gap: 13px; }
+.exp-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.2s; }
+.exp-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 10px rgba(0,229,160,0.1); transform: translateX(4px); }
+.exp-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 7px; }
+.exp-card-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.exp-card-level { font-size: 10px; padding: 2px 9px; border-radius: 5px; font-weight: 700; }
+.level-basic        { background: var(--low-bg);  color: var(--low);  border: 1px solid rgba(0,229,160,0.3); }
+.level-intermediate { background: var(--med-bg);  color: var(--med);  border: 1px solid rgba(255,201,77,0.3); }
+.level-advanced     { background: var(--high-bg); color: var(--high); border: 1px solid rgba(255,92,92,0.3); }
+.exp-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.exp-card-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.exp-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); }
+
+.exp-procedure { background: var(--surface); border: 1px solid rgba(0,229,160,0.2); border-radius: 10px; padding: 18px; margin-top: 14px; display: none; }
+.exp-procedure.visible { display: block; animation: fadeUp 0.3s ease; }
+.exp-steps-list { counter-reset: steps; }
+.exp-step { display: flex; gap: 13px; margin-bottom: 10px; padding: 11px 13px; background: var(--surface2); border-radius: 8px; font-size: 13px; line-height: 1.6; animation: fadeUp 0.3s ease both; border: 1px solid var(--border); }
+.exp-step-num { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #050a0e; font-size: 11px; font-weight: 700; font-family: var(--font-mono); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; box-shadow: 0 0 8px rgba(0,229,160,0.4); }
+.gen-loading { display: flex; align-items: center; gap: 10px; padding: 20px; color: var(--muted); font-size: 13px; }
+
+/* ── COMPATIBILITY MATRIX ── */
+.matrix-wrap { overflow-x: auto; }
+.matrix-table { border-collapse: collapse; font-size: 11px; min-width: 600px; font-family: var(--font-mono); }
+.matrix-table th, .matrix-table td { border: 1px solid var(--border); padding: 0; }
+.matrix-table .row-header, .matrix-table .col-header { padding: 7px 11px; background: var(--surface2); font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
+.matrix-cell { width: 44px; height: 44px; cursor: pointer; transition: filter 0.15s, transform 0.15s; position: relative; }
+.matrix-cell:hover { filter: brightness(1.3); transform: scale(1.1); z-index: 2; }
+.compat-safe    { background: rgba(0,229,160,0.12); }
+.compat-caution { background: rgba(255,201,77,0.12); }
+.compat-danger  { background: rgba(255,92,92,0.12); }
+.compat-same    { background: var(--surface3); cursor: default; }
+.compat-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 15px; }
+.matrix-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; }
+.legend-item { display: flex; align-items: center; gap: 7px; }
+.legend-swatch { width: 16px; height: 16px; border-radius: 4px; }
+
+.compat-tooltip {
+  position: fixed; z-index: 999;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--accent); padding: 10px 14px; border-radius: 10px;
+  font-size: 12px; max-width: 280px; line-height: 1.5;
+  pointer-events: none; font-family: var(--font-body);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5), var(--glow);
+  display: none;
+}
+
+/* ── STOCK TRACKER ── */
+.stock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+.stock-title  { font-size: 20px; font-weight: 700; }
+.stock-actions { display: flex; gap: 8px; }
+.stock-table-wrap { overflow-x: auto; }
+.stock-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+.stock-table th { padding: 11px 14px; text-align: left; background: var(--surface2); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); border-bottom: 1px solid var(--border); white-space: nowrap; }
+.stock-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+.stock-table tr:last-child td { border-bottom: none; }
+.stock-table tr:hover td { background: var(--surface2); }
+.stock-table .formula-cell { font-family: var(--font-mono); font-size: 11px; color: var(--accent); }
+.qty-input { width: 80px; padding: 5px 8px; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); font-family: var(--font-mono); font-size: 12px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.qty-input:focus { border-color: var(--accent); box-shadow: var(--glow); }
+.unit-select { padding: 5px 7px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--muted); font-size: 11px; font-family: inherit; outline: none; }
+.stock-status-badge { display: inline-block; padding: 3px 9px; border-radius: 5px; font-size: 10px; font-weight: 700; font-family: var(--font-mono); }
+.status-ok    { background: var(--low-bg);  color: var(--low); }
+.status-low   { background: var(--med-bg);  color: var(--med); }
+.status-empty { background: var(--high-bg); color: var(--high); }
+.status-na    { background: var(--surface3); color: var(--muted); }
+.threshold-input { width: 65px; padding: 4px 7px; text-align: center; border: 1px solid var(--border); border-radius: 5px; background: var(--surface2); color: var(--text); font-family: var(--font-mono); font-size: 11px; outline: none; }
+.stock-summary { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.stock-sum-card { flex: 1; min-width: 100px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; text-align: center; transition: all 0.2s; }
+.stock-sum-card:hover { border-color: var(--accent); box-shadow: var(--glow); }
+.stock-sum-n { font-size: 24px; font-weight: 700; font-family: var(--font-mono); }
+.stock-sum-l { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.export-btn { padding: 8px 16px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.export-btn:hover { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px rgba(0,229,160,0.2); }
+
+/* ── SHARED ── */
+.spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+.spinner-lg { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
+.loading-state { grid-column: 1/-1; text-align: center; padding: 52px; color: var(--muted); }
+.empty { grid-column: 1/-1; text-align: center; padding: 52px; color: var(--muted); font-size: 14px; }
+.empty-icon { font-size: 52px; margin-bottom: 14px; filter: drop-shadow(0 0 10px rgba(0,229,160,0.2)); }
+.pubchem-badge { position: absolute; bottom: 8px; right: 8px; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(0,229,160,0.85); color: #050a0e; font-family: var(--font-mono); font-weight: 700; }
+.source-divider { grid-column: 1/-1; display: flex; align-items: center; gap: 12px; margin: 8px 0 4px; }
+.source-divider span { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.source-divider::before, .source-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+footer { text-align: center; padding: 24px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); position: relative; z-index: 1; }
+
+/* ── ANIMATIONS ── */
+@keyframes spin    { to { transform: rotate(360deg); } }
+@keyframes fadeUp  { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+@keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes glow    { 0%,100%{box-shadow:var(--glow)} 50%{box-shadow:0 0 30px rgba(0,229,160,0.6)} }
+
+/* ── DARK/LIGHT TOGGLE ── */
+body.force-light {
+  --bg: #f0f4f8; --surface: #ffffff; --surface2: #f4f7fb; --surface3: #e8edf5;
+  --border: #d0dae8; --text: #0f1923; --muted: #5a6a7a;
+  --accent: #0a8a5c; --accent2: #1a6abf; --accent-bg: rgba(10,138,92,0.08);
+  --glow: 0 0 14px rgba(10,138,92,0.25);
+  --danger-bg: #fff1f1; --danger: #c0392b; --danger-border: #ffd5d5;
+  --warn-bg: #fffbeb; --warn: #92400e; --warn-border: #fde68a;
+  --info-bg: #eff6ff; --info: #1e40af; --info-border: #bfdbfe;
+  --low-bg: #ecfdf5; --low: #065f46;
+  --med-bg: #fffbeb; --med: #92400e;
+  --high-bg: #fff1f2; --high: #9f1239;
+}
+body.force-dark {
+  --bg: #050a0e; --surface: #0b1219; --surface2: #0f1a24; --surface3: #152030;
+  --border: #1a2e3d; --text: #e2f0f8; --muted: #5a7a8a;
+  --accent: #00e5a0; --accent2: #00b8ff; --accent-bg: rgba(0,229,160,0.08);
+  --glow: 0 0 18px rgba(0,229,160,0.35);
+  --danger-bg: #1a0a0a; --danger: #ff5c5c; --danger-border: #3d1515;
+  --warn-bg: #1a1200; --warn: #ffc94d; --warn-border: #3d2e00;
+  --info-bg: #050f1f; --info: #4db8ff; --info-border: #0a2040;
+  --low-bg: rgba(0,229,160,0.08); --low: #00e5a0;
+  --med-bg: rgba(255,201,77,0.08); --med: #ffc94d;
+  --high-bg: rgba(255,92,92,0.08); --high: #ff5c5c;
+}
+.theme-toggle { padding: 7px 11px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; font-size: 16px; transition: all 0.2s; line-height: 1; }
+.theme-toggle:hover { background: var(--accent-bg); transform: scale(1.12); box-shadow: var(--glow); }
+
+/* ── DRAG & DROP ── */
+.card[draggable="true"] { cursor: grab; }
+.card[draggable="true"]:active { cursor: grabbing; }
+.drop-zone { transition: all 0.2s; }
+.drop-zone.drag-over { border-color: var(--accent) !important; background: var(--accent-bg) !important; box-shadow: 0 0 0 3px rgba(0,229,160,0.25), var(--glow); }
+
+/* ── BEAKER ANIMATION ── */
+.beaker-stage { display: flex; align-items: flex-end; justify-content: center; gap: 24px; padding: 22px 0 12px; margin-bottom: 18px; }
+.beaker-wrap { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.beaker-label { font-size: 11px; font-weight: 600; color: var(--accent); font-family: var(--font-mono); max-width: 90px; text-align: center; text-shadow: 0 0 8px rgba(0,229,160,0.4); }
+.beaker { width: 84px; height: 96px; border: 2px solid var(--border); border-top: none; border-radius: 0 0 16px 16px; position: relative; overflow: hidden; background: var(--surface2); transition: border-color 0.4s; }
+.beaker-a { border-color: #4db8ff; box-shadow: 0 0 12px rgba(77,184,255,0.2); }
+.beaker-b { border-color: #00e5a0; box-shadow: 0 0 12px rgba(0,229,160,0.2); }
+.liquid { position: absolute; bottom: 0; left: 0; right: 0; height: 55%; border-radius: 0 0 14px 14px; transition: background 1.2s ease, height 0.8s ease; }
+.pour-arrow { font-size: 30px; color: var(--accent); margin-bottom: 34px; animation: pourPulse 1.2s ease-in-out infinite; text-shadow: var(--glow); }
+@keyframes pourPulse { 0%,100%{opacity:0.3;transform:translateX(0)} 50%{opacity:1;transform:translateX(6px)} }
+.bubbles { position: absolute; bottom: 0; left: 0; right: 0; height: 100%; pointer-events: none; }
+.bubble { position: absolute; border-radius: 50%; background: rgba(0,229,160,0.4); animation: rise linear infinite; }
+@keyframes rise { 0%{transform:translateY(0) scale(1);opacity:0.8} 100%{transform:translateY(-90px) scale(0.2);opacity:0} }
+
+/* ── PRINT BUTTON ── */
+.print-btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s; }
+.print-btn:hover { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); box-shadow: var(--glow); }
+
+@media print {
+  header,.nav-tabs,.filters,.stats,.exp-list,.print-btn,.ask-row,footer,.stock-actions,.stock-summary,#moleculeCanvas { display: none !important; }
+  .section-panel { display: block !important; }
+  .exp-layout { grid-template-columns: 1fr !important; }
+  .exp-procedure { display: block !important; }
+  body { font-size: 12px; background: #fff; color: #000; }
+  .exp-step { break-inside: avoid; }
+}
+
+@media (max-width: 700px) {
+  .exp-layout { grid-template-columns: 1fr; }
+  .rxn-selectors { grid-template-columns: 1fr; }
+  .rxn-plus { display: none; }
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  main { padding: 14px; }
+  .beaker-stage { gap: 12px; }
+  .beaker { width: 64px; height: 74px; }
+}
+
+/* ── RIPPLE ── */
+.ripple-host { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transform: scale(0);
+  animation: rippleAnim 0.55s linear;
+  pointer-events: none;
+}
+@keyframes rippleAnim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── TAB SLIDE ── */
+.section-panel.active {
+  animation: tabSlideIn 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes tabSlideIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── TOOLTIP ── */
+.sjc-tooltip {
+  position: fixed; z-index: 9998;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 6px 12px; border-radius: 7px;
+  font-size: 11px; pointer-events: none;
+  box-shadow: var(--glow);
+  opacity: 0; transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.sjc-tooltip.show { opacity: 1; }
+
+/* ── SDS / QR MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 480px; width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: slideUp 0.25s cubic-bezier(0.22,1,0.36,1);
+  position: relative;
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 18px; padding: 4px 8px;
+  border-radius: 6px; transition: all 0.15s;
+}
+.modal-close:hover { background: var(--high-bg); color: var(--high); }
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub   { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+
+.sds-links { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+.sds-link-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text); text-decoration: none; cursor: pointer;
+  transition: all 0.2s; font-family: inherit; font-size: 13px;
+  text-align: left;
+}
+.sds-link-btn:hover { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+.sds-link-icon { font-size: 22px; flex-shrink: 0; }
+.sds-link-info { flex: 1; }
+.sds-link-name { font-weight: 600; font-size: 13px; }
+.sds-link-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+.qr-section { border-top: 1px solid var(--border); padding-top: 18px; }
+.qr-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px; font-weight: 600; }
+.qr-wrap {
+  display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap;
+}
+.qr-canvas-wrap {
+  background: #fff; border-radius: 10px; padding: 10px;
+  border: 1px solid var(--border); flex-shrink: 0;
+}
+.qr-info { flex: 1; min-width: 160px; }
+.qr-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+.qr-download-btn {
+  padding: 8px 14px; border-radius: 8px;
+  background: var(--accent-bg); border: 1px solid rgba(0,229,160,0.3);
+  color: var(--accent); cursor: pointer; font-family: inherit;
+  font-size: 12px; font-weight: 600; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.qr-download-btn:hover { background: var(--accent); color: #050a0e; }
+
+</style>
+</head>
+<body>
+<canvas id="moleculeCanvas"></canvas>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <!-- <div class="brand-icon">⚗</div> -->
+      <img src="Logo.png" alt="SJCIT Logo" style="width:46px;height:46px;object-fit:contain;border-radius:6px;flex-shrink:0;">
+      <div>
+        <div class="brand-name">SJCIT LabChem</div>
+        <div class="brand-sub">Laboratory Reference</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search name, formula, use…" oninput="onSearchInput()" autocomplete="off">
+        <button class="search-clear" id="clearBtn" onclick="clearSearch()" title="Clear">✕</button>
+      </div>
+      <select class="hdr-select" id="catFilter" onchange="render()">
+        <option value="all">All categories</option>
+        <option value="acid">Acids</option>
+        <option value="base">Bases</option>
+        <option value="solvent">Solvents</option>
+        <option value="reagent">Reagents</option>
+      </select>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+    </div>
+  </div>
+</header>
+
+<div class="nav-tabs">
+  <div class="nav-tabs-inner">
+    <button class="nav-tab active" onclick="switchTab('chemicals', this)">🧪 Chemicals</button>
+    <button class="nav-tab" onclick="switchTab('reaction', this)">⚗ Reaction Simulator</button>
+    <button class="nav-tab" onclick="switchTab('experiments', this)">📋 Experiment Guide</button>
+    <button class="nav-tab" onclick="switchTab('matrix', this)">🔴 Compatibility Matrix</button>
+    <button class="nav-tab" onclick="switchTab('stock', this)">📦 Stock Tracker</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ═══ TAB: CHEMICALS ═══ -->
+<div class="section-panel active" id="tab-chemicals">
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="countStat">37</div><div class="stat-l">Chemicals</div></div>
+    <div class="stat"><div class="stat-n">4</div><div class="stat-l">Categories</div></div>
+    <div class="stat"><div class="stat-n">3</div><div class="stat-l">Hazard levels</div></div>
+    <div class="stat"><div class="stat-n" id="sourceStat">Local</div><div class="stat-l">Source</div></div>
+  </div>
+  <div class="filters">
+    <button class="filter-btn active" onclick="setHazard('all',this)"><span class="dot" style="background:#6b7280"></span>All</button>
+    <button class="filter-btn" onclick="setHazard('low',this)"><span class="dot" style="background:#059669"></span>Low</button>
+    <button class="filter-btn" onclick="setHazard('medium',this)"><span class="dot" style="background:#d97706"></span>Medium</button>
+    <button class="filter-btn" onclick="setHazard('high',this)"><span class="dot" style="background:#e11d48"></span>High</button>
+  </div>
+  <div class="detail-panel" id="detailPanel"></div>
+  <div class="grid" id="chemGrid"></div>
+</div>
+
+<!-- ═══ TAB: REACTION SIMULATOR ═══ -->
+<div class="section-panel" id="tab-reaction">
+  <div class="rxn-panel">
+    <div class="rxn-title">Reaction Simulator</div>
+    <div class="rxn-sub">Select two chemicals and predict their reaction using Gemini AI — or drag a card from the Chemicals tab into a slot below</div>
+
+    <div class="rxn-controls">
+      <select class="rxn-select" id="rxnA">
+        <option value="">— Chemical A —</option>
+      </select>
+      <select class="rxn-select" id="rxnB">
+        <option value="">— Chemical B —</option>
+      </select>
+      <button class="btn-primary" id="rxnBtn" onclick="runReaction()">
+        <span>⚗</span> React
+      </button>
+      <button class="btn-secondary" onclick="clearReaction()">Clear</button>
+    </div>
+
+    <div style="margin-bottom: 14px;">
+      <span class="qp-label">Quick pairs:</span>
+      <div class="quick-picks" style="display:inline-flex; flex-wrap:wrap; gap:6px;">
+        <span class="qp-chip" onclick="setRxnPair('Hydrochloric Acid','Sodium Hydroxide')">HCl + NaOH</span>
+        <span class="qp-chip" onclick="setRxnPair('Sulfuric Acid','Sodium Hydroxide')">H₂SO₄ + NaOH</span>
+        <span class="qp-chip" onclick="setRxnPair('Potassium Permanganate','Hydrogen Peroxide')">KMnO₄ + H₂O₂</span>
+        <span class="qp-chip" onclick="setRxnPair('Sodium Chloride','Sulfuric Acid')">NaCl + H₂SO₄</span>
+        <span class="qp-chip" onclick="setRxnPair('Acetic Acid','Sodium Hydroxide')">CH₃COOH + NaOH</span>
+        <span class="qp-chip" onclick="setRxnPair('Iodine','Sodium Hydroxide')">I₂ + NaOH</span>
+      </div>
+    </div>
+
+    <div class="rxn-selectors" id="rxnSlots">
+      <div class="rxn-slot drop-zone" id="slotA"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="dropToSlot(event,'A')">
+        <div class="rxn-slot-label">Chemical A</div>
+        <div style="font-size:28px;color:var(--muted)">?</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">drag here or use dropdown</div>
+      </div>
+      <div class="rxn-plus">+</div>
+      <div class="rxn-slot drop-zone" id="slotB"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="dropToSlot(event,'B')">
+        <div class="rxn-slot-label">Chemical B</div>
+        <div style="font-size:28px;color:var(--muted)">?</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">drag here or use dropdown</div>
+      </div>
+    </div>
+
+    <!-- Beaker animation -->
+    <div class="beaker-stage" id="beakerStage" style="display:none">
+      <div class="beaker-wrap">
+        <div class="beaker-label" id="beakerLabelA"></div>
+        <div class="beaker beaker-a" id="beakerA"><div class="liquid" id="liquidA"></div></div>
+      </div>
+      <div class="pour-arrow" id="pourArrow">→</div>
+      <div class="beaker-wrap">
+        <div class="beaker-label" id="beakerLabelB"></div>
+        <div class="beaker beaker-b" id="beakerB">
+          <div class="liquid" id="liquidB"></div>
+          <div class="bubbles" id="bubbles"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rxn-loading" id="rxnLoading">
+      <div class="spinner"></div>
+      <span>Claude is predicting the reaction…</span>
+    </div>
+    <div class="rxn-result" id="rxnResult"></div>
+  </div>
+</div>
+
+<!-- ═══ TAB: EXPERIMENT GUIDE ═══ -->
+<div class="section-panel" id="tab-experiments">
+  <div class="exp-layout">
+    <div class="exp-list">
+      <div class="exp-list-header">Select a Chemical</div>
+      <div id="expChemList"></div>
+    </div>
+    <div class="exp-content" id="expContent">
+      <div class="exp-placeholder">
+        <div class="exp-placeholder-icon">📋</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text)">Select a chemical</div>
+        <div style="font-size:13px;text-align:center">Choose any chemical from the list to see lab experiments it's commonly used in</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB: COMPATIBILITY MATRIX ═══ -->
+<div class="section-panel" id="tab-matrix">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px;">Chemical Compatibility Matrix</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Colour-coded storage compatibility. Hover or tap any cell for details. Based on hazard class and reactivity.</div>
+    <div class="matrix-legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--low-bg);border:1px solid var(--border)"></div><span style="color:var(--low)">✓ Safe to store together</span></div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--med-bg);border:1px solid var(--border)"></div><span style="color:var(--med)">⚠ Store separately / use caution</span></div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--high-bg);border:1px solid var(--border)"></div><span style="color:var(--high)">✗ Never store together</span></div>
+    </div>
+  </div>
+  <div class="matrix-wrap">
+    <table class="matrix-table" id="compatMatrix"></table>
+  </div>
+</div>
+<div class="compat-tooltip" id="compatTooltip"></div>
+
+<!-- ═══ TAB: STOCK TRACKER ═══ -->
+<div class="section-panel" id="tab-stock">
+  <div class="stock-summary">
+    <div class="stock-sum-card"><div class="stock-sum-n" id="ss-total" style="color:var(--accent)">37</div><div class="stock-sum-l">Total Chemicals</div></div>
+    <div class="stock-sum-card"><div class="stock-sum-n" id="ss-ok"    style="color:var(--low)">—</div><div class="stock-sum-l">In Stock</div></div>
+    <div class="stock-sum-card"><div class="stock-sum-n" id="ss-low"   style="color:var(--med)">—</div><div class="stock-sum-l">Low Stock</div></div>
+    <div class="stock-sum-card"><div class="stock-sum-n" id="ss-empty" style="color:var(--high)">—</div><div class="stock-sum-l">Out of Stock</div></div>
+    <div class="stock-sum-card"><div class="stock-sum-n" id="ss-na"    style="color:var(--muted)">37</div><div class="stock-sum-l">Not Recorded</div></div>
+  </div>
+  <div class="stock-header">
+    <div class="stock-title">Stock Tracker</div>
+    <div class="stock-actions">
+      <select class="hdr-select" id="stockFilter" onchange="renderStock()">
+        <option value="all">All</option>
+        <option value="low">Low stock</option>
+        <option value="empty">Out of stock</option>
+        <option value="ok">In stock</option>
+      </select>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="export-btn" onclick="saveStock()" title="Save stock data to browser">💾 Save</button>
+      <button class="export-btn" onclick="loadStock()" title="Restore saved stock data">📂 Restore</button>
+    </div>
+  </div>
+  <div class="stock-table-wrap">
+    <table class="stock-table">
+      <thead>
+        <tr>
+          <th>Chemical</th>
+          <th>Formula</th>
+          <th>Category</th>
+          <th>Hazard</th>
+          <th>Quantity</th>
+          <th>Unit</th>
+          <th>Alert below</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="stockBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  SJCIT LabChem Reference — Educational use only. Always follow your institution's safety protocols.<br>
+  <span style="color:var(--accent)">External data from PubChem (NIH). AI reactions & procedures powered by Claude.</span>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// GEMINI AI CONFIGURATION
+// Get a FREE key at: https://aistudio.google.com/app/apikey
+// Free tier: 15 requests/min, 1500/day — no credit card needed
+// ══════════════════════════════════════════════════════════════
+const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+async function callGemini(prompt) {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+    throw new Error("No API key — using offline data");
+  }
+  const resp = await fetch(GEMINI_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.3, maxOutputTokens: 900 }
+    })
+  });
+  if (!resp.ok) throw new Error(`Gemini error ${resp.status}`);
+  const data = await resp.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+// ══════════════════════════════════════════════════════════════
+// CHEMICAL DATA
+// ══════════════════════════════════════════════════════════════
+const chemicals = [
+  { name:"Hydrochloric Acid",  formula:"HCl",           iupac:"Hydrogen chloride (aqueous)", cat:"acid",    haz:"high",   img:"HCL.webp",              emoji:"🧪", desc:"A strong mineral acid with a pungent odor. One of the most widely used acids in chemical research and industry.", uses:["pH adjustment","Titrations","Metal cleaning","Organic synthesis"], props:{"Molar mass":"36.46 g/mol","Boiling pt":"110 °C","Density":"1.18 g/mL","pKa":"−7","Conc.":"37%","Form":"Aqueous liquid","Grade":"ACS"}, safety:[{t:"danger",txt:"Highly corrosive — causes severe burns to skin, eyes, and airways"},{t:"caution",txt:"Use only in a fume hood — toxic vapors accumulate fast"},{t:"info",txt:"Acid-resistant gloves, goggles, and lab coat required"}] },
+  { name:"Sulfuric Acid",      formula:"H₂SO₄",         iupac:"Sulfuric acid",               cat:"acid",    haz:"high",   img:"Sulfuric.jpg",           emoji:"⚗", desc:"Dense, oily liquid and one of the most corrosive chemicals known. Strongly exothermic when diluted with water.", uses:["Acid-base reactions","Dehydration","Esterification","Electrolytes"], props:{"Molar mass":"98.08 g/mol","Boiling pt":"337 °C","Density":"1.84 g/mL","pKa":"−3","Conc.":"98%","Form":"Oily liquid","Grade":"LR"}, safety:[{t:"danger",txt:"Extremely corrosive — reacts violently with water releasing intense heat"},{t:"danger",txt:"Always add acid to water slowly — never the reverse"},{t:"info",txt:"Face shield, thick acid gloves, and apron required"}] },
+  { name:"Sodium Hydroxide",   formula:"NaOH",           iupac:"Sodium hydroxide",            cat:"base",    haz:"high",   img:"sodium hydroxide.webp",  emoji:"🔬", desc:"Known as lye or caustic soda. A white solid strong base used across chemistry, industry, and food processing.", uses:["Saponification","Titrations","pH control","Ester hydrolysis"], props:{"Molar mass":"40.00 g/mol","Melting pt":"318 °C","Density":"2.13 g/cm³","pKb":"−0.56","Form":"Pellets/flakes","Solubility":"111 g/100 mL","Grade":"LR"}, safety:[{t:"danger",txt:"Caustic — rapidly dissolves skin and tissue on contact"},{t:"caution",txt:"Hygroscopic — absorbs moisture and CO₂ from the air"},{t:"info",txt:"Gloves, goggles, and coat mandatory at all times"}] },
+  { name:"Ethanol",            formula:"C₂H₅OH",         iupac:"Ethane-1-ol",                 cat:"solvent", haz:"medium", img:"ethanol.webp",           emoji:"💧", desc:"The most common organic solvent in labs. A colorless, volatile, flammable polar protic liquid miscible with water.", uses:["Solvent","Sterilization","Crystallization","Extraction"], props:{"Molar mass":"46.07 g/mol","Boiling pt":"78.24 °C","Density":"0.789 g/mL","Flash pt":"13 °C","pKa":"15.9","Miscibility":"Water, acetone","Grade":"LR"}, safety:[{t:"caution",txt:"Highly flammable — keep away from open flames and sparks"},{t:"info",txt:"Use in ventilated area — vapors are heavier than air"},{t:"info",txt:"Standard PPE — gloves and goggles recommended"}] },
+  { name:"Acetone",            formula:"(CH₃)₂CO",       iupac:"Propan-2-one",                cat:"solvent", haz:"medium", img:"acetone.webp",           emoji:"🧫", desc:"Colorless, low-boiling solvent with a sweet odor. Fully miscible with water. Used for cleaning and synthesis.", uses:["Glassware cleaning","Degreasing","Organic synthesis","HPLC mobile phase"], props:{"Molar mass":"58.08 g/mol","Boiling pt":"56.05 °C","Density":"0.791 g/mL","Flash pt":"−20 °C","pKa":"20","Miscibility":"Full (water)","Grade":"LR"}, safety:[{t:"danger",txt:"Extremely flammable — flash point −20 °C"},{t:"caution",txt:"Vapors cause dizziness — ventilate area thoroughly"},{t:"info",txt:"Nitrile gloves recommended — acetone penetrates latex"}] },
+  { name:"Hydrogen Peroxide",  formula:"H₂O₂",           iupac:"Dioxidane",                   cat:"reagent", haz:"medium", img:"HydPeroxide.jpg",        emoji:"💎", desc:"A powerful oxidizing agent that decomposes to water and oxygen. Used as bleach, antiseptic, and oxidizer.", uses:["Oxidation","Bleaching","Antiseptic","Fenton reagent"], props:{"Molar mass":"34.01 g/mol","Boiling pt":"150.2 °C","Density":"1.44 g/mL","pH":"4.5 (3%)","Lab conc.":"30%","Form":"Aqueous solution","Grade":"LR"}, safety:[{t:"danger",txt:"Concentrated form is a strong oxidizer — fire risk with organics"},{t:"caution",txt:"Store cool and dark — light accelerates decomposition"},{t:"info",txt:"Gloves and goggles required — bleaches skin on contact"}] },
+  { name:"Ammonia Solution",   formula:"NH₃(aq)",         iupac:"Azane (aqueous)",             cat:"base",    haz:"medium", img:"ammonia solution.webp",  emoji:"🌿", desc:"Colorless pungent solution of ammonia gas in water. A mild base widely used in qualitative analysis and cleaning.", uses:["pH adjustment","Qualitative analysis","Complexation","Buffer prep"], props:{"Molar mass":"17.03 g/mol","Density":"0.91 g/mL","pKb":"4.74","Conc.":"25–30%","Odor":"Sharp, pungent","Form":"Aqueous solution","Grade":"LR"}, safety:[{t:"danger",txt:"Toxic by inhalation — irritates and damages the respiratory tract"},{t:"caution",txt:"Use in fume hood — vapors accumulate quickly"},{t:"info",txt:"Gloves, goggles, and respiratory protection required"}] },
+  { name:"Nitric Acid",        formula:"HNO₃",            iupac:"Nitric acid",                 cat:"acid",    haz:"high",   img:"nitric acid.webp",       emoji:"🔴", desc:"Highly corrosive acid and powerful oxidizing agent. Reacts with metals and organic compounds vigorously.", uses:["Nitration","Metal dissolution","Aqua regia","Fertilizer synthesis"], props:{"Molar mass":"63.01 g/mol","Boiling pt":"83 °C","Density":"1.51 g/mL","pKa":"−1.4","Conc.":"68%","Oxidizing":"Strong","Grade":"ACS"}, safety:[{t:"danger",txt:"Powerful oxidizer — yellow NO₂ fumes are highly toxic"},{t:"danger",txt:"Reacts violently with organics — fire and explosion risk"},{t:"info",txt:"Full face shield, thick gloves, and fume hood essential"}] },
+  { name:"Methanol",           formula:"CH₃OH",           iupac:"Methanol",                    cat:"solvent", haz:"high",   img:"Methanol.jpg",           emoji:"☠", desc:"Simplest alcohol. Colorless and highly flammable. Acutely toxic if inhaled or ingested — burns with invisible flame.", uses:["HPLC solvent","Transesterification","Extractant","Fuel research"], props:{"Molar mass":"32.04 g/mol","Boiling pt":"64.7 °C","Density":"0.792 g/mL","Flash pt":"11 °C","pKa":"15.5","Miscibility":"Water, ethanol","Grade":"LR"}, safety:[{t:"danger",txt:"Acutely toxic — causes permanent blindness and death if ingested"},{t:"danger",txt:"Burns with an invisible flame — extremely hazardous"},{t:"info",txt:"Gloves and fume hood — avoid all skin contact strictly"}] },
+  { name:"Sodium Chloride",    formula:"NaCl",            iupac:"Sodium chloride",             cat:"reagent", haz:"low",    img:"SodiumChloride.webp",    emoji:"🧂", desc:"Common table salt. A white crystalline ionic solid used for calibration, buffers, and osmotic solutions.", uses:["Buffer preparation","Calibration","Salting out","Electrolyte solutions"], props:{"Molar mass":"58.44 g/mol","Melting pt":"801 °C","Density":"2.16 g/cm³","Solubility":"360 g/L","Form":"White crystals","pH":"~7 (neutral)","Grade":"LR"}, safety:[{t:"info",txt:"Generally safe at normal laboratory concentrations"},{t:"info",txt:"Standard PPE as good laboratory practice"},{t:"info",txt:"Non-hazardous waste — check local disposal regulations"}] },
+  { name:"Diethyl Ether",      formula:"(C₂H₅)₂O",       iupac:"Ethoxyethane",                cat:"solvent", haz:"high",   img:"Diethylether.webp",      emoji:"🌀", desc:"Highly volatile, flammable solvent with an anesthetic odor. Excellent for non-polar extractions. Vapors travel far.", uses:["Liquid extraction","Non-polar solvent","Grignard reactions","Anesthetic (hist.)"], props:{"Molar mass":"74.12 g/mol","Boiling pt":"34.6 °C","Density":"0.713 g/mL","Flash pt":"−45 °C","Form":"Clear liquid","Peroxides":"Forms on aging","Grade":"LR"}, safety:[{t:"danger",txt:"Extremely flammable — flash point −45 °C, vapors ignite easily"},{t:"danger",txt:"Forms explosive peroxides on aging — always test old bottles"},{t:"info",txt:"No open flames; use explosion-proof equipment only"}] },
+  { name:"Potassium Permanganate", formula:"KMnO₄",       iupac:"Potassium permanganate",      cat:"reagent", haz:"medium", img:"PotPermanganate.webp",   emoji:"🟣", desc:"Deep purple crystalline salt and powerful oxidizing agent. Used in organic oxidations and water treatment.", uses:["Oxidation reactions","Water purification","Baeyer test","Titrations"], props:{"Molar mass":"158.04 g/mol","Density":"2.70 g/cm³","Solubility":"76 g/L","Mn state":"Mn(VII)","Color":"Deep violet","Form":"Crystals","Grade":"LR"}, safety:[{t:"caution",txt:"Strong oxidizer — reacts with combustibles and concentrated acids"},{t:"caution",txt:"Stains skin and clothing purple — very difficult to remove"},{t:"info",txt:"Gloves and goggles required; avoid contact with organics"}] },
+  { name:"Acetic Acid",        formula:"CH₃COOH",         iupac:"Ethanoic acid",               cat:"acid",    haz:"medium", img:"Acetic.webp",            emoji:"🍶", desc:"Main component of vinegar. In glacial form it is concentrated and corrosive. Widely used in organic synthesis.", uses:["Esterification","Buffer solutions","Crystallization","Protein precipitation"], props:{"Molar mass":"60.05 g/mol","Boiling pt":"118.1 °C","Density":"1.05 g/mL","pKa":"4.76","Melting pt":"16.5 °C","Form":"Glacial / dilute","Grade":"LR"}, safety:[{t:"caution",txt:"Glacial form is corrosive — causes burns at high concentration"},{t:"caution",txt:"Flammable — keep away from open flames"},{t:"info",txt:"Gloves and goggles; fume hood for concentrated form"}] },
+  { name:"Distilled Water",    formula:"H₂O",             iupac:"Oxidane",                     cat:"solvent", haz:"low",    img:"distilledwater.webp",    emoji:"💧", desc:"Ultra-purified water with ions and impurities removed. The universal solvent — essential for all lab work.", uses:["Buffer preparation","Dilutions","Glassware washing","Reaction medium"], props:{"Molar mass":"18.015 g/mol","Boiling pt":"100 °C","Density":"1.00 g/mL","pH":"~7","Resistivity":">1 MΩ·cm","Form":"Clear liquid","Grade":"LR"}, safety:[{t:"info",txt:"No significant hazards under normal lab conditions"},{t:"info",txt:"Do not substitute tap water in chemical reactions"},{t:"info",txt:"Grade matters — use appropriate purity per application"}] },
+  { name:"Iodine",             formula:"I₂",              iupac:"Diiodine",                    cat:"reagent", haz:"medium", img:"Iodine.jpg",             emoji:"💜", desc:"Lustrous violet-black solid that sublimes to a purple vapor. Used as an oxidant, starch indicator, and antiseptic.", uses:["Starch indicator","Iodometry","Antiseptic","Halogenation"], props:{"Molar mass":"253.81 g/mol","Melting pt":"113.7 °C","Boiling pt":"184.3 °C","Density":"4.93 g/cm³","Color":"Violet-black","Sublimation":"Yes","Grade":"LR"}, safety:[{t:"caution",txt:"Vapors are irritating to eyes, skin, and lungs"},{t:"caution",txt:"Stains skin and surfaces brown — difficult to remove"},{t:"info",txt:"Handle in fume hood; gloves and goggles required"}] },
+  { name:"Oxalic Acid",        formula:"C₂H₂O₄",          iupac:"Ethanedioic acid",            cat:"acid",    haz:"medium", img:"Oxalic.webp",            emoji:"🔶", desc:"A colorless crystalline dicarboxylic acid found naturally in many plants. Used widely as a reducing agent and cleaning chemical.", uses:["Rust removal","Bleaching agent","Titrations","Metal cleaning","Textile processing"], props:{"Molar mass":"90.03 g/mol","Melting pt":"189–191 °C","Density":"1.90 g/cm³","pKa1":"1.25","pKa2":"4.27","Form":"White crystals","Grade":"LR"}, safety:[{t:"danger",txt:"Toxic if ingested — can cause kidney damage and hypocalcemia"},{t:"caution",txt:"Irritating to skin and eyes — avoid prolonged contact"},{t:"info",txt:"Gloves and goggles required; wash hands thoroughly after use"}] },
+  { name:"Magnesium Nitrate",  formula:"Mg(NO₃)₂",        iupac:"Magnesium dinitrate",         cat:"reagent", haz:"medium", img:"MagnesiumNitrate.jpg",   emoji:"🧩", desc:"A white crystalline salt that is highly soluble in water. Used as a fertilizer, desiccant, and oxidizing agent.", uses:["Fertilizers","Desiccant","Pyrotechnics","Oxidizing agent","Catalyst preparation"], props:{"Molar mass":"148.31 g/mol","Melting pt":"89 °C","Boiling pt":"330 °C (dec.)","Density":"2.30 g/cm³","Solubility":"125 g/100 mL","Form":"White crystals","Grade":"LR"}, safety:[{t:"danger",txt:"Strong oxidizer — may intensify fire; keep away from combustibles"},{t:"caution",txt:"Irritating to skin, eyes, and respiratory tract"},{t:"info",txt:"Gloves and goggles required; store away from flammable materials"}] },
+  { name:"EDTA",               formula:"C₁₀H₁₆N₂O₈",     iupac:"Ethylenediaminetetraacetic acid", cat:"reagent", haz:"low", img:"EDTA.webp",             emoji:"🔗", desc:"Ethylenediaminetetraacetic acid — a versatile chelating agent that binds to metal ions forming stable complexes.", uses:["Chelation therapy","Complexometric titrations","Food preservative","Water softening","Analytical chemistry"], props:{"Molar mass":"292.24 g/mol","Melting pt":"245 °C (dec.)","Density":"1.67 g/cm³","pKa1":"2.0","pKa4":"10.3","Form":"White powder","Grade":"LR"}, safety:[{t:"info",txt:"Generally low toxicity — considered safe at normal lab concentrations"},{t:"caution",txt:"Mild irritant to skin, eyes, and respiratory system as dust"},{t:"info",txt:"Standard PPE — gloves and goggles recommended when handling powder"}] },
+  { name:"Methyl Acetate",     formula:"CH₃COOCH₃",       iupac:"Methyl ethanoate",            cat:"solvent", haz:"medium", img:"methylacetate.webp",     emoji:"🌸", desc:"A colorless, flammable liquid ester with a pleasant fruity odor. A fast-evaporating solvent used in paints and adhesives.", uses:["Paint solvent","Adhesives","Nail polish remover","Extraction solvent","Flavoring agent"], props:{"Molar mass":"74.08 g/mol","Boiling pt":"56.9 °C","Density":"0.932 g/mL","Flash pt":"−10 °C","Miscibility":"Slight (water)","Grade":"LR"}, safety:[{t:"danger",txt:"Highly flammable — flash point −10 °C; keep away from ignition sources"},{t:"caution",txt:"Vapors cause irritation to eyes and respiratory tract"},{t:"info",txt:"Gloves, goggles, and ventilation required; avoid prolonged inhalation"}] },
+  { name:"Ethyl Acetate",      formula:"CH₃COOC₂H₅",      iupac:"Ethyl ethanoate",             cat:"solvent", haz:"medium", img:"Ethyl Acetate.webp",     emoji:"🍎", desc:"A colorless liquid ester with a characteristic fruity smell. One of the most widely used solvents in organic chemistry.", uses:["Chromatography (TLC/HPLC)","Liquid-liquid extraction","Paint & coatings","Nail polish remover","Decaffeination"], props:{"Molar mass":"88.11 g/mol","Boiling pt":"77.1 °C","Density":"0.902 g/mL","Flash pt":"−4 °C","Miscibility":"Slight (water)","Odor":"Sweet, fruity","Grade":"AR"}, safety:[{t:"danger",txt:"Highly flammable — flash point −4 °C; vapors form explosive mixtures"},{t:"caution",txt:"Narcotic at high concentrations — causes dizziness and headache"},{t:"info",txt:"Gloves, goggles, and adequate ventilation required at all times"}] },
+  { name:"Barium Chloride",    formula:"BaCl₂",           iupac:"Barium dichloride",           cat:"reagent", haz:"high",   img:"Barium Chloride.webp",   emoji:"🔷", desc:"A white crystalline salt highly soluble in water. Toxic — produces a distinctive green flame in flame tests.", uses:["Flame test (green)","Sulfate detection","Water softening","PVC stabilizer","Barium salt synthesis"], props:{"Molar mass":"208.23 g/mol","Melting pt":"962 °C","Boiling pt":"1560 °C","Density":"3.86 g/cm³","Solubility":"37.5 g/100 mL","Form":"White crystals","Grade":"LR"}, safety:[{t:"danger",txt:"Highly toxic — barium ions interfere with potassium channels; can be fatal"},{t:"danger",txt:"Do not ingest or inhale dust — seek immediate medical attention if exposed"},{t:"info",txt:"Gloves, goggles, and lab coat mandatory; handle with extreme care"}] },
+  { name:"Potassium Dichromate", formula:"K₂Cr₂O₇",       iupac:"Dipotassium dichromate",      cat:"reagent", haz:"high",   img:"Potassium Dichromate.webp", emoji:"🟠", desc:"Bright orange-red crystalline solid and a powerful oxidizing agent. Contains Cr(VI) which is highly toxic and carcinogenic.", uses:["Oxidizing agent","Organic synthesis","Chromate conversion coatings","Titrations","Photography"], props:{"Molar mass":"294.19 g/mol","Melting pt":"398 °C","Boiling pt":"500 °C (dec.)","Density":"2.68 g/cm³","Solubility":"13 g/100 mL","Color":"Bright orange-red","Grade":"LR"}, safety:[{t:"danger",txt:"Known carcinogen and mutagen — Cr(VI) causes lung cancer with chronic exposure"},{t:"danger",txt:"Powerful oxidizer — reacts violently with organic matter and flammables"},{t:"info",txt:"Full PPE required; dispose as hazardous waste — never down the drain"}] },
+  { name:"Cupric Sulphate",    formula:"CuSO₄",           iupac:"Copper(II) sulfate",          cat:"reagent", haz:"medium", img:"Cupric Sulphate.webp",   emoji:"💠", desc:"Vivid blue crystalline solid in its pentahydrate form. Used in Fehling's test, electroplating, and as a fungicide.", uses:["Fehling's test","Electroplating","Fungicide","Biuret protein test","Electrolysis experiments"], props:{"Molar mass":"249.68 g/mol (·5H₂O)","Melting pt":"110 °C (dec.)","Density":"2.28 g/cm³","Solubility":"31.6 g/100 mL","Color":"Blue crystals","Form":"Pentahydrate","Grade":"LR"}, safety:[{t:"caution",txt:"Harmful if swallowed — irritant to eyes, skin, and respiratory tract"},{t:"caution",txt:"Toxic to aquatic organisms — dispose as hazardous waste"},{t:"info",txt:"Gloves and goggles required; avoid dust inhalation"}] },
+  { name:"Phenol",             formula:"C₆H₅OH",          iupac:"Phenol",                      cat:"reagent", haz:"high",   img:"Phenol.webp",            emoji:"⬡",  desc:"Colorless to light pink crystalline solid. Readily absorbed through skin. Used in disinfectants and biochemistry.", uses:["Disinfectant","Phenol-chloroform extraction","Resin synthesis","Pharmaceutical intermediate","Protein precipitation"], props:{"Molar mass":"94.11 g/mol","Melting pt":"40.5 °C","Boiling pt":"181.8 °C","Density":"1.07 g/cm³","pKa":"9.95","Form":"Crystals / liquid","Grade":"LR"}, safety:[{t:"danger",txt:"Highly toxic — rapidly absorbed through skin causing systemic poisoning"},{t:"danger",txt:"Corrosive — causes chemical burns; initially painless on contact"},{t:"info",txt:"Neoprene or PVC gloves (not latex); full PPE; use only in fume hood"}] },
+  { name:"Glycerol",           formula:"C₃H₈O₃",          iupac:"Propane-1,2,3-triol",         cat:"reagent", haz:"low",    img:"Glycerol.webp",          emoji:"🍯", desc:"A colorless, odorless, viscous, sweet-tasting liquid. Non-toxic and completely miscible with water and ethanol.", uses:["Solvent for biochemistry","Cryoprotectant","Personal care products","Pharmaceutical excipient","Glycerol stock (bacterial)"], props:{"Molar mass":"92.09 g/mol","Melting pt":"17.8 °C","Boiling pt":"290 °C","Density":"1.261 g/mL","Viscosity":"1.412 Pa·s","Miscibility":"Water, ethanol","Grade":"LR"}, safety:[{t:"info",txt:"Non-toxic — generally recognized as safe (GRAS) for humans"},{t:"info",txt:"Hygroscopic — absorbs moisture from air on prolonged exposure"},{t:"info",txt:"Standard PPE as good laboratory practice; slippery if spilled"}] },
+  { name:"Ferric Chloride",    formula:"FeCl₃",           iupac:"Iron(III) chloride",          cat:"reagent", haz:"medium", img:"Ferric Chloride.webp",   emoji:"🟤", desc:"Dark reddish-brown solid. A Lewis acid used in PCB etching, qualitative analysis for phenols, and water treatment.", uses:["PCB etching","Phenol detection","Water treatment coagulant","Organic synthesis (Lewis acid)","Wound hemostasis"], props:{"Molar mass":"162.20 g/mol","Melting pt":"307.6 °C","Boiling pt":"315 °C","Density":"2.90 g/cm³","Solubility":"74.4 g/100 mL","Color":"Dark reddish-brown","Grade":"LR"}, safety:[{t:"caution",txt:"Irritating and corrosive to eyes, skin, and mucous membranes"},{t:"caution",txt:"Strong Lewis acid — hydrolyzes in moist air producing HCl vapors"},{t:"info",txt:"Gloves and goggles required; stains skin and clothing brown permanently"}] },
+  { name:"Ferric Nitrate",     formula:"Fe(NO₃)₃",        iupac:"Iron(III) nitrate",           cat:"reagent", haz:"medium", img:"Ferric Nitrate.webp",    emoji:"🔵", desc:"Violet-grey crystalline solid typically found as the nonahydrate. A strong oxidizer and source of iron(III) ions.", uses:["Catalyst preparation","Dyeing mordant","Oxidizing agent","Iron(III) ion source","Corrosion inhibitor testing"], props:{"Molar mass":"404.00 g/mol (·9H₂O)","Melting pt":"47 °C","Boiling pt":"125 °C (dec.)","Density":"1.68 g/cm³","Solubility":"150 g/100 mL","Form":"Violet crystals","Grade":"LR"}, safety:[{t:"danger",txt:"Oxidizer — may intensify fire; keep away from combustible materials"},{t:"caution",txt:"Irritating to skin, eyes, and respiratory tract"},{t:"info",txt:"Gloves and goggles required; store away from organic materials"}] },
+  { name:"Ferrous Sulphate",   formula:"FeSO₄",           iupac:"Iron(II) sulfate",            cat:"reagent", haz:"low",    img:"Ferrous Sulphate.webp",  emoji:"💚", desc:"Blue-green crystalline solid as the heptahydrate. Used as a reducing agent, iron supplement, and in analytical chemistry.", uses:["Mohr salt preparation","Reducing agent","Iron supplement","Ink manufacturing","Qualitative Fe²⁺ tests"], props:{"Molar mass":"278.01 g/mol (·7H₂O)","Melting pt":"64 °C (dec.)","Density":"1.895 g/cm³","Solubility":"26.3 g/100 mL","Color":"Blue-green crystals","Form":"Heptahydrate","Grade":"LR"}, safety:[{t:"caution",txt:"Irritant — may cause gastrointestinal distress if ingested in large amounts"},{t:"info",txt:"Oxidizes slowly in air — store in sealed containers away from moisture"},{t:"info",txt:"Standard PPE recommended; may stain skin and surfaces green-brown"}] },
+  { name:"Ammonium Ferrous Sulphate", formula:"(NH₄)₂Fe(SO₄)₂·6H₂O", iupac:"Diammonium iron(II) bis(sulfate) hexahydrate", cat:"reagent", haz:"low", img:"Ammonium Ferrous Sulphate.webp", emoji:"🟩", desc:"Known as Mohr's salt — a pale green crystalline double salt. Preferred primary standard for Fe²⁺ in redox titrations.", uses:["Redox titrations (Fe²⁺ standard)","Primary standard for KMnO₄","Reducing agent","Analytical chemistry","Mohr's salt preparation"], props:{"Molar mass":"392.14 g/mol","Melting pt":"100 °C (dec.)","Density":"1.86 g/cm³","Solubility":"26.9 g/100 mL","Color":"Pale green","Form":"Monoclinic crystals","Grade":"LR"}, safety:[{t:"info",txt:"Low toxicity — mild irritant to eyes and skin at high concentrations"},{t:"info",txt:"More air-stable than FeSO₄ — store in cool, dry conditions"},{t:"info",txt:"Standard PPE recommended; no special handling precautions needed"}] },
+  { name:"Ammonium Chloride",  formula:"NH₄Cl",           iupac:"Ammonium chloride",           cat:"reagent", haz:"low",    img:"Ammonium Chloride.jpg",  emoji:"🔲", desc:"White crystalline salt with a slightly acidic aqueous solution. Sublimes rather than melting at 338 °C.", uses:["Buffer preparation (NH₄⁺/NH₃)","Flux for soldering","Nitrogen fertilizer","Dry cell batteries","Qualitative analysis"], props:{"Molar mass":"53.49 g/mol","Sublimation pt":"338 °C","Density":"1.527 g/cm³","Solubility":"37.2 g/100 mL","pH (sat. soln)":"~4.6","Form":"White crystals","Grade":"LR"}, safety:[{t:"caution",txt:"Irritant — mildly toxic; may cause gastrointestinal upset if ingested"},{t:"caution",txt:"Sublimes on heating producing irritating NH₃ and HCl vapors"},{t:"info",txt:"Gloves and goggles recommended; handle heating with care"}] },
+  { name:"Aluminium Oxide",    formula:"Al₂O₃",           iupac:"Aluminium oxide",             cat:"reagent", haz:"low",    img:"Aluminium Oxide.webp",   emoji:"⬜", desc:"A white amphoteric oxide also known as alumina. Widely used as a stationary phase in column chromatography and as an abrasive.", uses:["Column chromatography","Abrasive","Catalyst support","Refractory material","Aluminium production (Hall process)"], props:{"Molar mass":"101.96 g/mol","Melting pt":"2072 °C","Boiling pt":"2977 °C","Density":"3.99 g/cm³","Solubility":"Insoluble","Form":"White powder","Grade":"LR"}, safety:[{t:"info",txt:"Generally inert and non-toxic — considered safe in normal lab use"},{t:"caution",txt:"Fine dust may cause respiratory irritation — avoid prolonged inhalation"},{t:"info",txt:"Dust mask, gloves, and goggles recommended when handling powder"}] },
+  { name:"Zinc Sulphate",      formula:"ZnSO₄",           iupac:"Zinc sulfate",                cat:"reagent", haz:"medium", img:"Zinc Sulphate.webp",     emoji:"🔵", desc:"Colorless crystalline solid as the heptahydrate. A soluble zinc salt used in agriculture, electroplating, and as a mordant.", uses:["Zinc electroplating","Agriculture (micronutrient)","Mordant in dyeing","Wood preservative","Zinc supplement"], props:{"Molar mass":"287.53 g/mol (·7H₂O)","Melting pt":"100 °C (dec.)","Density":"1.97 g/cm³","Solubility":"57.7 g/100 mL","Color":"Colorless crystals","Form":"Heptahydrate","Grade":"LR"}, safety:[{t:"caution",txt:"Harmful if swallowed — causes nausea and vomiting; toxic to aquatic life"},{t:"caution",txt:"Irritating to skin, eyes, and mucous membranes"},{t:"info",txt:"Gloves and goggles required; dispose as hazardous waste"}] },
+  { name:"Butan-1-ol",         formula:"C₄H₉OH",          iupac:"Butan-1-ol",                  cat:"solvent", haz:"medium", img:"Butan-1-ol.webp",        emoji:"🧴", desc:"A colorless, moderately viscous liquid with a characteristic banana-like odor. A primary alcohol widely used as a solvent.", uses:["Paint & coating solvent","Organic synthesis","Extraction solvent","Plasticizer production","Fuel additive"], props:{"Molar mass":"74.12 g/mol","Boiling pt":"117.7 °C","Density":"0.810 g/mL","Flash pt":"35 °C","pKa":"16.1","Miscibility":"Partial (water)","Grade":"LR"}, safety:[{t:"danger",txt:"Flammable liquid and vapor — flash point 35 °C; keep away from flames"},{t:"caution",txt:"Irritating to eyes, skin, and respiratory tract; narcotic at high concentrations"},{t:"info",txt:"Gloves, goggles, and ventilation required; avoid prolonged inhalation"}] },
+  { name:"Benzoic Acid",       formula:"C₆H₅COOH",        iupac:"Benzoic acid",                cat:"acid",    haz:"low",    img:"Benzoic Acid.webp",      emoji:"🌾", desc:"A white crystalline aromatic carboxylic acid. The simplest aromatic acid — widely used as a food preservative.", uses:["Food preservative (E210)","Primary standard (calorimetry)","Pharmaceutical synthesis","Fungicide","Benzoate salt preparation"], props:{"Molar mass":"122.12 g/mol","Melting pt":"122.4 °C","Boiling pt":"250 °C","Density":"1.27 g/cm³","pKa":"4.20","Form":"White needles","Grade":"LR"}, safety:[{t:"caution",txt:"Irritating to eyes, skin, and respiratory tract — avoid dust inhalation"},{t:"info",txt:"Low acute toxicity — handle with standard lab precautions"},{t:"info",txt:"Gloves and goggles recommended; may cause allergic reaction in sensitive individuals"}] },
+  { name:"Calcium Nitrate",    formula:"Ca(NO₃)₂",        iupac:"Calcium dinitrate",           cat:"reagent", haz:"medium", img:"Calcium Nitrate.webp",   emoji:"🏔", desc:"A colorless, highly hygroscopic salt. Used extensively as a nitrogen and calcium fertilizer and in concrete treatment.", uses:["Fertilizer (N & Ca source)","Concrete accelerator","Wastewater treatment","Cooling baths","Fireworks (oxidizer)"], props:{"Molar mass":"164.09 g/mol","Melting pt":"561 °C (anhydrous)","Density":"2.504 g/cm³","Solubility":"121.2 g/100 mL","Form":"White crystals","Hygroscopic":"Very high","Grade":"LR"}, safety:[{t:"danger",txt:"Strong oxidizer — may intensify fire; keep away from combustible materials"},{t:"caution",txt:"Highly hygroscopic — absorbs water rapidly from air; store sealed"},{t:"info",txt:"Gloves and goggles required; store separately from organic materials"}] },
+  { name:"Urea",               formula:"CO(NH₂)₂",        iupac:"Urea",                        cat:"reagent", haz:"low",    img:"Urea.webp",              emoji:"🔬", desc:"A white crystalline organic compound — the first organic compound ever synthesized. Widely used as a nitrogen fertilizer and protein denaturant.", uses:["Nitrogen fertilizer (46% N)","Protein denaturation","Urea-formaldehyde resins","Molecular biology (gel electrophoresis)","De-icing agent"], props:{"Molar mass":"60.06 g/mol","Melting pt":"133.4 °C","Density":"1.32 g/cm³","Solubility":"108 g/100 mL","pKa":"0.10","Form":"White pellets","Grade":"LR"}, safety:[{t:"info",txt:"Low acute toxicity — not classified as a hazardous substance"},{t:"caution",txt:"Decomposes on strong heating releasing ammonia and cyanic acid"},{t:"info",txt:"Standard PPE recommended; avoid prolonged skin contact"}] },
+  { name:"Sodium Hypochlorite",formula:"NaOCl",            iupac:"Sodium hypochlorite",         cat:"reagent", haz:"medium", img:"Sodium Hypochlorite.webp",emoji:"🫧", desc:"A pale greenish-yellow alkaline solution commonly known as bleach. A powerful oxidizing disinfectant.", uses:["Disinfection & sterilization","Water purification","Bleaching","Oxidizing agent","DNA/RNA decontamination"], props:{"Molar mass":"74.44 g/mol","Boiling pt":"101 °C","Density":"1.11 g/mL (5%)","pH":"11–13 (alkaline)","Active Cl":"~5–12%","Form":"Aqueous solution","Grade":"LR"}, safety:[{t:"danger",txt:"Never mix with acids — releases toxic chlorine gas immediately"},{t:"caution",txt:"Corrosive in concentrated form — irritates skin, eyes, and airways"},{t:"info",txt:"Gloves and goggles required; ventilate well; store away from acids and ammonia"}] }
+];
+
+// ══════════════════════════════════════════════════════════════
+// COMPATIBILITY DATA
+// ══════════════════════════════════════════════════════════════
+// Matrix subset: top 12 chemicals for the matrix
+const matrixChems = [
+  "Hydrochloric Acid","Sulfuric Acid","Nitric Acid","Sodium Hydroxide",
+  "Ammonia Solution","Hydrogen Peroxide","Ethanol","Acetone",
+  "Potassium Permanganate","Sodium Hypochlorite","Diethyl Ether","Methanol"
+];
+// 0=safe, 1=caution, 2=danger, -1=same
+const compatData = {
+  "Hydrochloric Acid":    {"Hydrochloric Acid":-1,"Sulfuric Acid":1,"Nitric Acid":1,"Sodium Hydroxide":2,"Ammonia Solution":2,"Hydrogen Peroxide":1,"Ethanol":0,"Acetone":0,"Potassium Permanganate":2,"Sodium Hypochlorite":2,"Diethyl Ether":0,"Methanol":0},
+  "Sulfuric Acid":        {"Hydrochloric Acid":1,"Sulfuric Acid":-1,"Nitric Acid":1,"Sodium Hydroxide":2,"Ammonia Solution":2,"Hydrogen Peroxide":2,"Ethanol":2,"Acetone":2,"Potassium Permanganate":2,"Sodium Hypochlorite":2,"Diethyl Ether":2,"Methanol":2},
+  "Nitric Acid":          {"Hydrochloric Acid":1,"Sulfuric Acid":1,"Nitric Acid":-1,"Sodium Hydroxide":2,"Ammonia Solution":2,"Hydrogen Peroxide":2,"Ethanol":2,"Acetone":2,"Potassium Permanganate":2,"Sodium Hypochlorite":2,"Diethyl Ether":2,"Methanol":2},
+  "Sodium Hydroxide":     {"Hydrochloric Acid":2,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":-1,"Ammonia Solution":1,"Hydrogen Peroxide":1,"Ethanol":0,"Acetone":0,"Potassium Permanganate":1,"Sodium Hypochlorite":0,"Diethyl Ether":0,"Methanol":0},
+  "Ammonia Solution":     {"Hydrochloric Acid":2,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":1,"Ammonia Solution":-1,"Hydrogen Peroxide":2,"Ethanol":0,"Acetone":0,"Potassium Permanganate":2,"Sodium Hypochlorite":2,"Diethyl Ether":0,"Methanol":0},
+  "Hydrogen Peroxide":    {"Hydrochloric Acid":1,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":1,"Ammonia Solution":2,"Hydrogen Peroxide":-1,"Ethanol":2,"Acetone":2,"Potassium Permanganate":2,"Sodium Hypochlorite":1,"Diethyl Ether":2,"Methanol":2},
+  "Ethanol":              {"Hydrochloric Acid":0,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":0,"Ammonia Solution":0,"Hydrogen Peroxide":2,"Ethanol":-1,"Acetone":0,"Potassium Permanganate":2,"Sodium Hypochlorite":1,"Diethyl Ether":1,"Methanol":1},
+  "Acetone":              {"Hydrochloric Acid":0,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":0,"Ammonia Solution":0,"Hydrogen Peroxide":2,"Ethanol":0,"Acetone":-1,"Potassium Permanganate":2,"Sodium Hypochlorite":1,"Diethyl Ether":1,"Methanol":1},
+  "Potassium Permanganate":{"Hydrochloric Acid":2,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":1,"Ammonia Solution":2,"Hydrogen Peroxide":2,"Ethanol":2,"Acetone":2,"Potassium Permanganate":-1,"Sodium Hypochlorite":1,"Diethyl Ether":2,"Methanol":2},
+  "Sodium Hypochlorite":  {"Hydrochloric Acid":2,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":0,"Ammonia Solution":2,"Hydrogen Peroxide":1,"Ethanol":1,"Acetone":1,"Potassium Permanganate":1,"Sodium Hypochlorite":-1,"Diethyl Ether":1,"Methanol":1},
+  "Diethyl Ether":        {"Hydrochloric Acid":0,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":0,"Ammonia Solution":0,"Hydrogen Peroxide":2,"Ethanol":1,"Acetone":1,"Potassium Permanganate":2,"Sodium Hypochlorite":1,"Diethyl Ether":-1,"Methanol":1},
+  "Methanol":             {"Hydrochloric Acid":0,"Sulfuric Acid":2,"Nitric Acid":2,"Sodium Hydroxide":0,"Ammonia Solution":0,"Hydrogen Peroxide":2,"Ethanol":1,"Acetone":1,"Potassium Permanganate":2,"Sodium Hypochlorite":1,"Diethyl Ether":1,"Methanol":-1}
+};
+const compatReasons = {
+  "2": {
+    "Hydrochloric Acid+Sodium Hydroxide": "Violent acid-base neutralization; highly exothermic — risk of splashing.",
+    "Hydrochloric Acid+Ammonia Solution": "Produces toxic ammonium chloride fumes and dense white smoke.",
+    "Hydrochloric Acid+Potassium Permanganate": "Releases toxic chlorine gas (Cl₂) — extremely dangerous.",
+    "Hydrochloric Acid+Sodium Hypochlorite": "Releases toxic chlorine gas immediately upon contact.",
+    "Sulfuric Acid+Sodium Hydroxide": "Extremely violent neutralization; intense heat released.",
+    "Sulfuric Acid+Ethanol": "H₂SO₄ dehydrates/oxidizes ethanol — fire and explosion risk.",
+    "Sulfuric Acid+Acetone": "Concentrated H₂SO₄ can polymerize and ignite acetone.",
+    "Sulfuric Acid+Hydrogen Peroxide": "Piranha solution — extremely powerful oxidizer; explosive.",
+    "Sulfuric Acid+Diethyl Ether": "Strong acid + flammable ether — fire and explosion hazard.",
+    "Sulfuric Acid+Methanol": "Produces dimethyl sulfate, a highly toxic carcinogen.",
+    "Nitric Acid+Ethanol": "Strong oxidizer + flammable solvent — fire and explosion.",
+    "Nitric Acid+Acetone": "Can form explosive acetone peroxide; severe explosion risk.",
+    "Nitric Acid+Diethyl Ether": "Highly explosive combination — never mix.",
+    "Hydrogen Peroxide+Ethanol": "Strong oxidizer + flammable solvent — serious fire hazard.",
+    "Hydrogen Peroxide+Acetone": "Can form explosive acetone peroxide.",
+    "Hydrogen Peroxide+Diethyl Ether": "Explosive mixture — never store or mix.",
+    "Potassium Permanganate+Ethanol": "Strong oxidizer ignites ethanol — fire hazard.",
+    "Potassium Permanganate+Acetone": "Oxidizer + flammable ketone — explosion risk.",
+    "Ammonia Solution+Hydrogen Peroxide": "Generates heat and unstable compounds; explosion risk.",
+    "Ammonia Solution+Sodium Hypochlorite": "Produces toxic chloramine gases — respiratory hazard.",
+    "Potassium Permanganate+Methanol": "Strong oxidizer can ignite methanol — fire hazard.",
+    "default": "These chemicals are incompatible and must never be stored together due to serious fire, explosion, or toxic gas generation risk."
+  },
+  "1": {
+    "default": "Store in separate cabinets and use with caution. These chemicals may react under certain conditions or share incompatible hazard classes."
+  }
+};
+
+function getCompatReason(a, b, level) {
+  if (level === 0 || level === -1) return null;
+  const key1 = `${a}+${b}`;
+  const key2 = `${b}+${a}`;
+  const map = compatReasons[String(level)];
+  return map[key1] || map[key2] || map["default"];
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXPERIMENT DEFINITIONS
+// ══════════════════════════════════════════════════════════════
+const experiments = {
+  "Sodium Hydroxide": [
+    { name:"Soap Making (Saponification)", level:"basic",       desc:"React NaOH with vegetable oil to produce soap and glycerol.", tags:["organic","synthesis"] },
+    { name:"Acid-Base Titration",          level:"basic",       desc:"Standardize NaOH solution against primary standard HCl.", tags:["analytical","titration"] },
+    { name:"Ester Hydrolysis (Saponification)", level:"intermediate", desc:"Hydrolyze ethyl acetate with NaOH to produce sodium ethanoate.", tags:["organic","kinetics"] },
+  ],
+  "Hydrochloric Acid": [
+    { name:"Acid-Base Titration",          level:"basic",       desc:"Titrate HCl against NaOH using phenolphthalein indicator.", tags:["analytical","titration"] },
+    { name:"Reaction with Metals",         level:"basic",       desc:"React HCl with zinc or magnesium to produce hydrogen gas.", tags:["inorganic","gas collection"] },
+    { name:"Preparation of Chlorine Gas",  level:"advanced",    desc:"React HCl with MnO₂ under controlled conditions to generate Cl₂.", tags:["inorganic","fume hood required"] },
+  ],
+  "Potassium Permanganate": [
+    { name:"Permanganate Titration",        level:"basic",       desc:"Determine Fe²⁺ concentration using KMnO₄ as the oxidant — self-indicating.", tags:["analytical","redox"] },
+    { name:"Baeyer Test for Unsaturation", level:"basic",       desc:"Test for C=C bonds: purple KMnO₄ turns brown/colourless with alkenes.", tags:["organic","qualitative"] },
+    { name:"Oxidation of Glycerol",        level:"intermediate", desc:"Observe vigorous exothermic oxidation of glycerol with concentrated KMnO₄.", tags:["dramatic","oxidation"] },
+  ],
+  "Hydrogen Peroxide": [
+    { name:"Catalytic Decomposition",      level:"basic",       desc:"Use MnO₂ or yeast as catalyst to decompose H₂O₂ into O₂ and H₂O.", tags:["physical chemistry","catalysis"] },
+    { name:"Elephant Toothpaste",          level:"basic",       desc:"Rapid decomposition with KI catalyst producing foam. Classic demonstration.", tags:["demonstration","rate"] },
+    { name:"Fenton's Reaction",            level:"intermediate", desc:"React H₂O₂ with FeSO₄ to generate hydroxyl radicals — powerful oxidation.", tags:["advanced","free radicals"] },
+  ],
+  "Acetic Acid": [
+    { name:"Fischer Esterification",       level:"basic",       desc:"React glacial acetic acid with ethanol + H₂SO₄ catalyst to form ethyl acetate.", tags:["organic","esterification"] },
+    { name:"Acetate Buffer Preparation",   level:"basic",       desc:"Prepare CH₃COOH/CH₃COONa buffer and verify pH with indicator.", tags:["analytical","buffer"] },
+    { name:"Aspirin Synthesis",            level:"intermediate", desc:"React acetic anhydride (or glacial AcOH) with salicylic acid to synthesize aspirin.", tags:["pharmaceutical","synthesis"] },
+  ],
+  "Iodine": [
+    { name:"Starch-Iodine Test",           level:"basic",       desc:"Detect starch in food samples — I₂ turns deep blue-black in presence of starch.", tags:["qualitative","biology"] },
+    { name:"Iodometric Titration",         level:"intermediate", desc:"Determine H₂O₂ or vitamin C concentration by iodometric back-titration.", tags:["analytical","redox"] },
+    { name:"Halogenation of Alkene",       level:"advanced",    desc:"Add I₂/CCl₄ across a C=C double bond — decolouration indicates unsaturation.", tags:["organic","mechanism"] },
+  ],
+  "Ethanol": [
+    { name:"Ethanol Extraction",           level:"basic",       desc:"Extract pigments (e.g. chlorophyll) from plant material using ethanol.", tags:["extraction","biology"] },
+    { name:"Recrystallization Solvent",    level:"basic",       desc:"Dissolve an impure solid in hot ethanol and recrystallize on cooling.", tags:["purification","technique"] },
+    { name:"Esterification with Acetic Acid", level:"intermediate", desc:"Produce ethyl acetate from ethanol and glacial acetic acid with H₂SO₄.", tags:["organic","esterification"] },
+  ],
+  "Cupric Sulphate": [
+    { name:"Fehling's Test",               level:"basic",       desc:"Test for reducing sugars — CuSO₄ in Fehling's solution turns brick-red.", tags:["qualitative","biochemistry"] },
+    { name:"Copper Electroplating",        level:"basic",       desc:"Plate copper onto a metal electrode from CuSO₄ electrolyte solution.", tags:["electrochemistry","practical"] },
+    { name:"Biuret Protein Test",          level:"basic",       desc:"Detect peptide bonds with CuSO₄ in alkaline solution — violet colour.", tags:["biochemistry","qualitative"] },
+  ],
+  "Ammonium Ferrous Sulphate": [
+    { name:"KMnO₄ Standardization",        level:"intermediate", desc:"Use Mohr's salt as primary standard to determine exact KMnO₄ concentration.", tags:["analytical","redox titration"] },
+    { name:"Preparation of Mohr's Salt",   level:"basic",       desc:"Prepare Mohr's salt crystals from FeSO₄ and (NH₄)₂SO₄ by evaporation.", tags:["preparative","inorganic"] },
+  ],
+  "Sodium Chloride": [
+    { name:"Electrolysis of Brine",        level:"basic",       desc:"Electrolyse NaCl solution to produce Cl₂ at anode and H₂ at cathode.", tags:["electrochemistry","industrial"] },
+    { name:"Osmosis Demonstration",        level:"basic",       desc:"Use NaCl solutions to demonstrate osmosis across a semi-permeable membrane.", tags:["biology","physical chemistry"] },
+  ],
+  "Oxalic Acid": [
+    { name:"Permanganate Titration",        level:"intermediate", desc:"Titrate oxalic acid with KMnO₄ in acid medium — classic redox standard.", tags:["analytical","redox"] },
+    { name:"Rust Removal",                 level:"basic",       desc:"Use dilute oxalic acid solution to dissolve iron oxide from metal surfaces.", tags:["applied","inorganic"] },
+  ],
+};
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+const bottleCache = {};
+let activeHaz = "all";
+let openIdx   = -1;
+let openPubchem = null;
+let searchDebounce = null;
+let activeTab = "chemicals";
+let stockData = {}; // name -> { qty: number|null, unit: string, threshold: number }
+let selectedExpChem = null;
+
+const hazColors = {
+  low:    { stripe:"#059669", labelBg:"#d1fae5", labelText:"#065f46" },
+  medium: { stripe:"#d97706", labelBg:"#fef3c7", labelText:"#92400e" },
+  high:   { stripe:"#dc2626", labelBg:"#fee2e2", labelText:"#991b1b" }
+};
+
+// Initialise stock
+chemicals.forEach(c => { stockData[c.name] = { qty: null, unit: "g", threshold: 50 }; });
+
+// ══════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  activeTab = name;
+  if (name === 'chemicals') render();
+  if (name === 'experiments') renderExpList();
+  if (name === 'matrix') renderMatrix();
+  if (name === 'stock') renderStock();
+}
+
+// ══════════════════════════════════════════════════════════════
+// CHEMICALS TAB
+// ══════════════════════════════════════════════════════════════
+function setHazard(h, btn) {
+  activeHaz = h;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  closeDetail(); render();
+}
+
+function clearSearch() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("clearBtn").classList.remove("visible");
+  openPubchem = null; closeDetail(); render();
+}
+
+function onSearchInput() {
+  const val = document.getElementById("searchInput").value;
+  document.getElementById("clearBtn").classList.toggle("visible", val.length > 0);
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => { openPubchem = null; closeDetail(); render(); }, 300);
+}
+
+function getStockClass(name) {
+  const s = stockData[name];
+  if (s.qty === null) return '';
+  if (s.qty === 0) return 'stock-empty';
+  if (s.qty <= s.threshold) return 'stock-low';
+  return 'stock-ok';
+}
+
+async function render() {
+  const q   = document.getElementById("searchInput").value.trim();
+  const cat = document.getElementById("catFilter").value;
+  const filtered = chemicals.filter(c => {
+    const mCat = cat === "all" || c.cat === cat;
+    const mHaz = activeHaz === "all" || c.haz === activeHaz;
+    const mQ   = !q || c.name.toLowerCase().includes(q.toLowerCase()) || c.formula.toLowerCase().includes(q.toLowerCase()) || c.uses.some(u => u.toLowerCase().includes(q.toLowerCase())) || c.desc.toLowerCase().includes(q.toLowerCase());
+    return mCat && mHaz && mQ;
+  });
+
+  const grid = document.getElementById("chemGrid");
+
+  if (q && filtered.length === 0) {
+    document.getElementById("countStat").textContent = "…";
+    document.getElementById("sourceStat").textContent = "PubChem";
+    grid.innerHTML = `<div class="loading-state"><div class="spinner-lg"></div><p>Searching PubChem for "<strong>${q}</strong>"…</p></div>`;
+    try {
+      const propUrl = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(q)}/property/MolecularFormula,MolecularWeight,IUPACName,XLogP,HBondDonorCount,HBondAcceptorCount,RotatableBondCount,ExactMass,MonoisotopicMass,TPSA,HeavyAtomCount,Charge/JSON`;
+      const synUrl  = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(q)}/synonyms/JSON`;
+      const structUrl = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(q)}/PNG?record_type=2d&image_size=large`;
+      const [propRes, synRes] = await Promise.all([fetch(propUrl), fetch(synUrl)]);
+      const propData = await propRes.json();
+      const synData  = await synRes.json();
+      const p = propData.PropertyTable.Properties[0];
+      const synonyms = (synData.InformationList?.Information?.[0]?.Synonym || []).slice(0, 6);
+      let wikiDesc = p.IUPACName ? `${q} (IUPAC: ${p.IUPACName}). Formula: ${p.MolecularFormula || '—'}.` : `Formula: ${p.MolecularFormula || '—'}. Data from PubChem.`;
+      openPubchem = { ...p, synonyms, structUrl, photoUrl: null, aiSvg: null, wikiDesc, searchName: q };
+      document.getElementById("countStat").textContent = "1";
+      document.getElementById("sourceStat").textContent = "PubChem";
+      grid.innerHTML = `
+        <div class="card selected" onclick="openPubchemDetail()">
+          <div class="card-img-wrap" style="display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:40px">🔬</span>
+            <span class="pubchem-badge">PubChem</span>
+          </div>
+          <div class="card-body">
+            <div class="c-formula">${p.MolecularFormula || '—'}</div>
+            <div class="c-name">${q}</div>
+            <div class="c-desc">${wikiDesc}</div>
+            <div class="c-tags"><span class="c-tag">MW: ${p.MolecularWeight || '—'}</span><span class="c-tag">CID: ${p.CID}</span></div>
+          </div>
+        </div>`;
+    } catch(err) {
+      document.getElementById("countStat").textContent = "0";
+      document.getElementById("sourceStat").textContent = "Local";
+      grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>No results found for "<strong>${q}</strong>".</p></div>`;
+    }
+    return;
+  }
+
+  document.getElementById("countStat").textContent = filtered.length;
+  document.getElementById("sourceStat").textContent = "Local";
+  openPubchem = null;
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>No chemicals match your search.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(c => {
+    const idx = chemicals.indexOf(c);
+    const cached = bottleCache[c.name];
+    const sc = getStockClass(c.name);
+    let imgSection;
+    if (cached) {
+      imgSection = `<div class="card-img-wrap" id="ciwrap-${idx}" style="position:relative;">${renderCachedBottle(cached, c)}</div>`;
+    } else {
+      imgSection = `<div class="card-img-wrap" id="ciwrap-${idx}" style="position:relative;">
+        <img src="${c.img}" alt="${c.name}" loading="lazy" onerror="resolveBottle(${idx})" style="width:100%;height:100%;object-fit:cover;">
+        <span class="haz-badge haz-${c.haz}">${c.haz}</span>
+        <span class="cat-badge">${c.cat}</span>
+      </div>`;
+    }
+    const s = stockData[c.name];
+    let stockBadge = '';
+    if (s.qty !== null) {
+      const sc2 = s.qty === 0 ? 'empty' : (s.qty <= s.threshold ? 'low' : 'ok');
+      const lbl = s.qty === 0 ? 'OUT' : (s.qty <= s.threshold ? `LOW: ${s.qty}${s.unit}` : `${s.qty}${s.unit}`);
+      stockBadge = `<span class="stock-badge ${sc2}" style="position:absolute;bottom:5px;left:5px;">${lbl}</span>`;
+    }
+    return `<div class="card${openIdx === idx ? " selected" : ""} ${sc}" onclick="openDetail(${idx})" draggable="true" ondragstart="dragChemical(event,${JSON.stringify(c.name)})" title="Drag to Reaction Simulator">
+      ${imgSection}
+      ${stockBadge}
+      <div class="card-body">
+        <div class="c-formula">${c.formula}</div>
+        <div class="c-name">${c.name}</div>
+        <div class="c-desc">${c.desc}</div>
+        <div class="c-tags">${c.uses.slice(0,3).map(u=>`<span class="c-tag">${u}</span>`).join("")}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderCachedBottle(cached, c) {
+  if (cached.type === 'photo') {
+    return `<img src="${cached.src}" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;"><span class="haz-badge haz-${c.haz}">${c.haz}</span><span class="cat-badge">${c.cat}</span>`;
+  } else {
+    return `<div class="ai-bottle-wrap">${cached.src}<span class="haz-badge haz-${c.haz}">${c.haz}</span><span class="cat-badge">${c.cat}</span><span class="ai-bottle-label">AI bottle</span></div>`;
+  }
+}
+
+async function resolveBottle(idx) {
+  const c = chemicals[idx];
+  const wrap = document.getElementById(`ciwrap-${idx}`);
+  if (!wrap) return;
+  wrap.innerHTML = `<div class="bottle-loading"><div class="bottle-spinner"></div><span class="bottle-spinner-text">Generating…</span></div>`;
+  try {
+    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(c.name)}`);
+    if (r.ok) { const d = await r.json(); const photo = d.originalimage?.source || d.thumbnail?.source || null;
+      if (photo) { bottleCache[c.name] = {type:'photo', src:photo}; wrap.innerHTML = renderCachedBottle(bottleCache[c.name], c); return; } }
+  } catch {}
+  const svg = await generateBottleSVG(c.name, c.formula, c.haz);
+  bottleCache[c.name] = svg ? {type:'bottle', src:svg} : {type:'bottle', src:`<div style="font-size:40px;display:flex;align-items:center;justify-content:center;height:100%;">${c.emoji}</div>`};
+  wrap.innerHTML = renderCachedBottle(bottleCache[c.name], c);
+}
+
+async function generateBottleSVG(name, formula, haz) {
+  const col = hazColors[haz] || hazColors.medium;
+  const labelName = name.length > 14 ? name.slice(0,13)+'…' : name;
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", 
+      headers: {
+  "Content-Type": "application/json",
+  "anthropic-version": "2023-06-01",
+  "anthropic-dangerous-direct-browser-access": "true"
+},
+      body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000,
+        messages:[{role:"user", content:`Generate a clean SVG of a lab reagent bottle for "${name}" (formula: ${formula}, hazard: ${haz}). viewBox="0 0 100 130". Light blue-grey glass, ${col.stripe} cap, white label with name "${labelName}" and formula "${formula}". No <style> blocks, no comments. Return ONLY raw SVG from <svg to </svg>.`}]})
+    });
+    const data = await resp.json();
+    const text = data.content?.map(b=>b.text||"").join("") || "";
+    const match = text.match(/<svg[\s\S]*<\/svg>/i);
+    return match ? match[0] : null;
+  } catch { return null; }
+}
+
+function openDetail(idx) {
+  if (openIdx === idx) { closeDetail(); return; }
+  openIdx = idx; openPubchem = null;
+  const c = chemicals[idx];
+  const structImg = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(c.name)}/PNG?record_type=2d&image_size=large`;
+  const safeIcon  = {danger:"⚠", caution:"⚠", info:"ℹ"};
+  const cached    = bottleCache[c.name];
+  let leftPanel;
+  if (cached?.type === 'bottle') {
+    leftPanel = `<div style="flex:1;min-width:220px;background:var(--surface2);display:flex;align-items:center;justify-content:center;min-height:180px;padding:14px;">${cached.src}</div>`;
+  } else if (cached?.type === 'photo') {
+    leftPanel = `<div style="flex:1;min-width:220px;"><img class="det-img" src="${cached.src}" alt="${c.name}" onerror="this.outerHTML='<div class=det-ph>${c.emoji}</div>'"></div>`;
+  } else {
+    leftPanel = `<div style="flex:1;min-width:220px;"><img class="det-img" src="${c.img}" alt="${c.name}" onerror="this.outerHTML='<div class=det-ph>${c.emoji}</div>'"></div>`;
+  }
+  const panel = document.getElementById("detailPanel");
+  panel.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;">
+      ${leftPanel}
+      <div class="det-struct-wrap" style="flex:1;min-width:200px;">
+        <div style="text-align:center">
+          <img src="${structImg}" alt="structure" onerror="this.style.display='none'"
+            style="max-width:220px;max-height:160px;object-fit:contain;background:#fff;border-radius:7px;padding:6px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--muted);margin-top:5px;font-family:var(--font-mono)">2D structure via PubChem</div>
+        </div>
+      </div>
+    </div>
+    <div class="det-body">
+      <div class="det-head">
+        <div>
+          <div class="det-formula">${c.formula}</div>
+          <div class="det-name">${c.name}</div>
+          <div class="det-iupac">IUPAC: ${c.iupac}</div>
+        </div>
+        <button class="close-btn" onclick="closeDetail()">✕</button>
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.65">${c.desc}</p>
+      <div class="det-section-title">Physical properties</div>
+      <div class="props-grid">${Object.entries(c.props).map(([k,v])=>`<div class="prop"><div class="prop-label">${k}</div><div class="prop-value">${v}</div></div>`).join("")}</div>
+      <div class="det-section-title">Laboratory uses</div>
+      <div class="uses-wrap">${c.uses.map(u=>`<span class="use-chip">${u}</span>`).join("")}</div>
+      <div class="det-section-title">Safety information</div>
+      ${c.safety.map(s=>`<div class="safety-item ${s.t}"><span class="si-icon">${safeIcon[s.t]}</span><span>${s.txt}</span></div>`).join("")}
+      <div class="ask-row">
+        <button class="ask-btn" onclick="window.open('https://en.wikipedia.org/wiki/${encodeURIComponent(c.name)}','_blank')">Wikipedia ↗</button>
+        <button class="ask-btn" onclick="window.open('https://pubchem.ncbi.nlm.nih.gov/#query=${encodeURIComponent(c.name)}','_blank')">PubChem ↗</button>
+        <button class="ask-btn" onclick="openSdsModal(${idx})" style="color:var(--danger);border-color:var(--danger-border)">📄 SDS</button>
+        <button class="ask-btn" onclick="openQrModal(${idx})" style="color:var(--accent);border-color:rgba(0,229,160,0.3)">📱 QR Code</button>
+      </div>
+    </div>`;
+  panel.classList.add("open");
+  render();
+  panel.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+function openPubchemDetail() {
+  if (!openPubchem) return;
+  const p = openPubchem;
+  const panel = document.getElementById("detailPanel");
+  const propRows = [["Molecular Formula",p.MolecularFormula],["Molecular Weight",p.MolecularWeight?p.MolecularWeight+" g/mol":null],["XLogP",p.XLogP],["H-Bond Donors",p.HBondDonorCount],["H-Bond Acceptors",p.HBondAcceptorCount],["TPSA",p.TPSA?p.TPSA+" Å²":null],["PubChem CID",p.CID]].filter(([,v])=>v!=null&&v!==undefined&&v!=="");
+  panel.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;"><div class="det-ph">🔬</div></div>
+      <div class="det-struct-wrap" style="flex:1;min-width:200px;">
+        <div style="text-align:center">
+          <img src="${p.structUrl}" alt="structure" onerror="this.style.display='none'" style="max-width:220px;max-height:160px;object-fit:contain;background:#fff;border-radius:7px;padding:6px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--muted);margin-top:5px;font-family:var(--font-mono)">2D structure — PubChem</div>
+        </div>
+      </div>
+    </div>
+    <div class="det-body">
+      <div class="det-head">
+        <div>
+          <div class="det-formula">${p.MolecularFormula||'—'}</div>
+          <div class="det-name">${p.searchName}</div>
+          <div class="det-iupac">IUPAC: ${p.IUPACName||'Not available'}</div>
+        </div>
+        <button class="close-btn" onclick="closeDetail()">✕</button>
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.65">${p.wikiDesc}</p>
+      ${p.synonyms?.length ? `<div style="margin:12px 0"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px;">Also known as</div><div style="display:flex;gap:5px;flex-wrap:wrap;">${p.synonyms.map(s=>`<span class="c-tag">${s}</span>`).join("")}</div></div>` : ""}
+      <div class="det-section-title">Properties from PubChem</div>
+      <div class="props-grid">${propRows.map(([k,v])=>`<div class="prop"><div class="prop-label">${k}</div><div class="prop-value">${v}</div></div>`).join("")}</div>
+      <div class="safety-item info" style="margin-top:14px;"><span class="si-icon">ℹ</span><span>Not in local SJCIT database. Data from PubChem (NIH). Verify safety from official SDS sheets before use.</span></div>
+      <div class="ask-row"><button class="ask-btn" onclick="window.open('https://pubchem.ncbi.nlm.nih.gov/compound/${p.CID}','_blank')">Full PubChem entry ↗</button></div>
+    </div>`;
+  panel.classList.add("open");
+  panel.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+function closeDetail() {
+  openIdx = -1;
+  const panel = document.getElementById("detailPanel");
+  panel.classList.remove("open"); panel.innerHTML = "";
+  if (activeTab === 'chemicals') render();
+}
+
+// ══════════════════════════════════════════════════════════════
+// REACTION SIMULATOR
+// ══════════════════════════════════════════════════════════════
+(function initRxnSelects() {
+  const selA = document.getElementById('rxnA');
+  const selB = document.getElementById('rxnB');
+  chemicals.forEach(c => {
+    [selA, selB].forEach(sel => {
+      const o = document.createElement('option');
+      o.value = c.name; o.textContent = `${c.name} (${c.formula})`;
+      sel.appendChild(o);
+    });
+  });
+  selA.addEventListener('change', updateSlots);
+  selB.addEventListener('change', updateSlots);
+})();
+
+function updateSlots() {
+  const a = document.getElementById('rxnA').value;
+  const b = document.getElementById('rxnB').value;
+  const ca = chemicals.find(c=>c.name===a);
+  const cb = chemicals.find(c=>c.name===b);
+  const slotA = document.getElementById('slotA');
+  const slotB = document.getElementById('slotB');
+  if (ca) {
+    slotA.classList.add('filled');
+    slotA.innerHTML = `<div class="rxn-slot-label">Chemical A</div><div class="rxn-slot-formula">${ca.formula}</div><div class="rxn-slot-name">${ca.name}</div>`;
+  } else {
+    slotA.classList.remove('filled');
+    slotA.innerHTML = `<div class="rxn-slot-label">Chemical A</div><div style="font-size:26px;color:var(--muted)">?</div>`;
+  }
+  if (cb) {
+    slotB.classList.add('filled');
+    slotB.innerHTML = `<div class="rxn-slot-label">Chemical B</div><div class="rxn-slot-formula">${cb.formula}</div><div class="rxn-slot-name">${cb.name}</div>`;
+  } else {
+    slotB.classList.remove('filled');
+    slotB.innerHTML = `<div class="rxn-slot-label">Chemical B</div><div style="font-size:26px;color:var(--muted)">?</div>`;
+  }
+}
+
+function setRxnPair(a, b) {
+  document.getElementById('rxnA').value = a;
+  document.getElementById('rxnB').value = b;
+  updateSlots();
+  document.getElementById('rxnResult').classList.remove('visible');
+  document.getElementById('rxnResult').innerHTML = '';
+}
+
+// ══════════════════════════════════════════════════════════════
+// BUILT-IN REACTION DATABASE (offline, no API needed)
+// ══════════════════════════════════════════════════════════════
+const reactionDB = [
+  { a:"Hydrochloric Acid", b:"Sodium Hydroxide", type:"Acid-Base Neutralisation", equation:"HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l)", products:["Sodium Chloride","Water"], observations:"Exothermic — solution warms noticeably. No visible change; colourless solution remains.", hazards:"Heat generated. Excess HCl or NaOH still corrosive.", notes:"Use phenolphthalein indicator; endpoint is pale pink → colourless." },
+  { a:"Sulfuric Acid", b:"Sodium Hydroxide", type:"Acid-Base Neutralisation", equation:"H₂SO₄(aq) + 2NaOH(aq) → Na₂SO₄(aq) + 2H₂O(l)", products:["Sodium Sulfate","Water"], observations:"Strongly exothermic. Colourless solution. Significant heat released.", hazards:"Highly exothermic — risk of spattering if concentrated. Dilute carefully.", notes:"Always add acid to base slowly when using concentrated H₂SO₄." },
+  { a:"Hydrochloric Acid", b:"Sodium Chloride", type:"No Significant Reaction", equation:"No reaction", products:[], observations:"No visible change. Both are already ionic in solution.", hazards:"None beyond individual chemical hazards.", notes:"NaCl is the product of HCl + NaOH; it does not react further with HCl." },
+  { a:"Potassium Permanganate", b:"Hydrogen Peroxide", type:"Redox Reaction", equation:"2KMnO₄ + 5H₂O₂ + 3H₂SO₄ → 2MnSO₄ + K₂SO₄ + 8H₂O + 5O₂", products:["Manganese(II) Sulfate","Oxygen gas","Water"], observations:"Purple KMnO₄ decolourises to pale pink/colourless. Vigorous O₂ gas evolution. Exothermic.", hazards:"Rapid O₂ release — fire risk near combustibles. Exothermic.", notes:"H₂O₂ acts as reducing agent here; reaction is self-indicating." },
+  { a:"Sodium Chloride", b:"Sulfuric Acid", type:"Salt-Acid Displacement", equation:"NaCl(s) + H₂SO₄(conc.) → NaHSO₄ + HCl(g)", products:["Sodium Hydrogen Sulfate","Hydrogen Chloride gas"], observations:"Colourless HCl gas evolved (pungent, fuming). White solid residue.", hazards:"HCl gas is toxic and corrosive — use fume hood. Concentrated H₂SO₄ is highly corrosive.", notes:"Reaction requires concentrated H₂SO₄ and gentle heating." },
+  { a:"Acetic Acid", b:"Sodium Hydroxide", type:"Acid-Base Neutralisation", equation:"CH₃COOH(aq) + NaOH(aq) → CH₃COONa(aq) + H₂O(l)", products:["Sodium Acetate","Water"], observations:"Mildly exothermic. Colourless solution. Vinegar odour diminishes.", hazards:"Mild — dilute solutions are low hazard.", notes:"Produces a buffer solution near the equivalence point (pH ~8.7)." },
+  { a:"Iodine", b:"Sodium Hydroxide", type:"Disproportionation", equation:"I₂ + 2NaOH → NaI + NaIO + H₂O", products:["Sodium Iodide","Sodium Hypoiodite","Water"], observations:"Purple-brown iodine dissolves; solution turns pale yellow then colourless.", hazards:"Iodine vapour is irritating. NaOH is corrosive.", notes:"At higher temperatures, iodate (IO₃⁻) forms instead of hypoiodite." },
+  { a:"Hydrochloric Acid", b:"Ammonia Solution", type:"Acid-Base Neutralisation", equation:"HCl(aq) + NH₃(aq) → NH₄Cl(aq)", products:["Ammonium Chloride"], observations:"Dense white fumes of NH₄Cl if gases meet. In solution: exothermic, colourless.", hazards:"NH₃ vapour is toxic. HCl vapour is corrosive. Use fume hood.", notes:"Classic white smoke demonstration when concentrated solutions are brought near each other." },
+  { a:"Sulfuric Acid", b:"Hydrogen Peroxide", type:"No Significant Reaction", equation:"No reaction (H₂SO₄ used as acidifying agent only)", products:[], observations:"No visible change. H₂SO₄ acidifies the medium for subsequent reactions.", hazards:"Both are oxidising/corrosive — handle with care.", notes:"H₂SO₄ is often added to acidify H₂O₂ solutions for redox titrations." },
+  { a:"Potassium Permanganate", b:"Acetic Acid", type:"Oxidation", equation:"2KMnO₄ + 5CH₃COOH → 2MnO₂ + K₂O + 5CO₂ + 5H₂O (simplified)", products:["Manganese dioxide","Carbon dioxide","Water"], observations:"Purple solution turns brown (MnO₂ precipitate). CO₂ gas bubbles.", hazards:"Exothermic. MnO₂ is an irritant. CO₂ displaces air.", notes:"Concentrated acetic acid reacts more vigorously; use dilute solutions." },
+  { a:"Hydrogen Peroxide", b:"Iodine", type:"Redox Reaction", equation:"H₂O₂ + I₂ → 2HI + O₂ (in alkaline) or H₂O₂ reduces I₂ to I⁻", products:["Hydroiodic Acid","Oxygen"], observations:"Brown iodine colour fades. O₂ gas bubbles observed.", hazards:"O₂ evolution — fire risk near combustibles.", notes:"H₂O₂ can act as both oxidant and reductant depending on conditions." },
+  { a:"Ethanol", b:"Acetic Acid", type:"Esterification", equation:"C₂H₅OH + CH₃COOH ⇌ CH₃COOC₂H₅ + H₂O (H₂SO₄ catalyst, heat)", products:["Ethyl Acetate","Water"], observations:"Sweet fruity odour of ethyl acetate. Colourless liquid layer forms.", hazards:"Flammable vapours. H₂SO₄ catalyst is corrosive.", notes:"Equilibrium reaction — remove water or ester to drive forward." },
+  { a:"Sodium Hydroxide", b:"Ammonia Solution", type:"No Significant Reaction", equation:"No reaction (both are bases)", products:[], observations:"No visible change. Both remain in solution.", hazards:"Combined alkalinity — corrosive. NH₃ vapour may be released.", notes:"Mixing two bases does not produce a reaction; pH increases slightly." },
+  { a:"Hydrochloric Acid", b:"Hydrogen Peroxide", type:"No Significant Reaction", equation:"No significant reaction under normal conditions", products:[], observations:"No visible change at room temperature.", hazards:"Both are corrosive/oxidising — handle separately.", notes:"No direct reaction; HCl can slowly oxidise in presence of strong oxidants." },
+  { a:"Sulfuric Acid", b:"Acetic Acid", type:"No Significant Reaction", equation:"No reaction (both are acids)", products:[], observations:"No visible change. H₂SO₄ may act as dehydrating agent at high concentration.", hazards:"Highly corrosive mixture. Exothermic mixing.", notes:"H₂SO₄ is used as a catalyst in esterification of acetic acid, not a reactant." },
+  { a:"Potassium Permanganate", b:"Sodium Hydroxide", type:"Disproportionation / Colour Change", equation:"4KMnO₄ + 4KOH → 4K₂MnO₄ + 2H₂O + O₂ (in hot conc. base)", products:["Potassium Manganate","Water","Oxygen"], observations:"Purple KMnO₄ turns green (manganate K₂MnO₄) in strongly alkaline solution.", hazards:"Strongly alkaline and oxidising mixture.", notes:"The green manganate is stable only in strongly alkaline conditions." },
+  { a:"Cupric Sulphate", b:"Sodium Hydroxide", type:"Precipitation", equation:"CuSO₄(aq) + 2NaOH(aq) → Cu(OH)₂(s) + Na₂SO₄(aq)", products:["Copper(II) Hydroxide (blue precipitate)","Sodium Sulfate"], observations:"Pale blue gelatinous precipitate of Cu(OH)₂ forms immediately.", hazards:"NaOH is corrosive. Cu(OH)₂ is toxic to aquatic organisms.", notes:"Heating the precipitate converts it to black CuO." },
+  { a:"Cupric Sulphate", b:"Ammonia Solution", type:"Complex Formation", equation:"CuSO₄ + 4NH₃(aq) → [Cu(NH₃)₄]SO₄", products:["Tetraamminecopper(II) Sulfate (deep blue complex)"], observations:"Pale blue solution turns deep royal blue — striking colour change.", hazards:"NH₃ vapour is toxic. Use fume hood.", notes:"The deep blue tetraamine complex is used in Biuret protein test." },
+  { a:"Ferric Chloride", b:"Sodium Hydroxide", type:"Precipitation", equation:"FeCl₃(aq) + 3NaOH(aq) → Fe(OH)₃(s) + 3NaCl(aq)", products:["Iron(III) Hydroxide (rust-brown precipitate)","Sodium Chloride"], observations:"Rust-brown gelatinous precipitate of Fe(OH)₃ forms immediately.", hazards:"NaOH is corrosive. FeCl₃ is irritating.", notes:"Fe(OH)₃ precipitate is used to confirm Fe³⁺ ions in qualitative analysis." },
+  { a:"Barium Chloride", b:"Sulfuric Acid", type:"Precipitation", equation:"BaCl₂(aq) + H₂SO₄(aq) → BaSO₄(s) + 2HCl(aq)", products:["Barium Sulfate (white precipitate)","Hydrochloric Acid"], observations:"Dense white precipitate of BaSO₄ forms instantly. Insoluble in dilute acids.", hazards:"BaCl₂ is highly toxic. H₂SO₄ is corrosive.", notes:"BaSO₄ precipitate is the standard test for sulfate ions." },
+  { a:"Oxalic Acid", b:"Potassium Permanganate", type:"Redox Titration", equation:"5C₂H₂O₄ + 2KMnO₄ + 3H₂SO₄ → 10CO₂ + 2MnSO₄ + K₂SO₄ + 8H₂O", products:["Carbon Dioxide","Manganese(II) Sulfate","Water"], observations:"Purple KMnO₄ decolourises. CO₂ gas bubbles. Self-indicating reaction.", hazards:"H₂SO₄ is corrosive. KMnO₄ is an oxidiser.", notes:"Classic redox titration — warm to 60°C to initiate, then autocatalytic." },
+  { a:"Oxalic Acid", b:"Sodium Hydroxide", type:"Acid-Base Neutralisation", equation:"C₂H₂O₄ + 2NaOH → Na₂C₂O₄ + 2H₂O", products:["Sodium Oxalate","Water"], observations:"Exothermic. Colourless solution. Oxalic acid dissolves completely.", hazards:"Oxalic acid is toxic. NaOH is corrosive.", notes:"Sodium oxalate product is used as a primary standard in redox titrations." },
+  { a:"Ethanol", b:"Sodium Hydroxide", type:"No Significant Reaction", equation:"No reaction under normal conditions", products:[], observations:"No visible change at room temperature.", hazards:"Ethanol is flammable.", notes:"Ethanol is a very weak acid (pKa ~16); NaOH does not deprotonate it significantly at room temperature." },
+  { a:"Methanol", b:"Sodium Hydroxide", type:"No Significant Reaction", equation:"No reaction under normal conditions", products:[], observations:"No visible change.", hazards:"Methanol is acutely toxic and flammable.", notes:"Like ethanol, methanol is too weak an acid to react with NaOH at room temperature." },
+  { a:"Phenol", b:"Sodium Hydroxide", type:"Acid-Base Reaction", equation:"C₆H₅OH + NaOH → C₆H₅ONa + H₂O", products:["Sodium Phenoxide","Water"], observations:"Phenol dissolves readily in NaOH solution. Colourless solution.", hazards:"Phenol is highly toxic and absorbed through skin. NaOH is corrosive.", notes:"Unlike alcohols, phenol is acidic enough (pKa 9.95) to react with NaOH." },
+  { a:"Ferric Nitrate", b:"Sodium Hydroxide", type:"Precipitation", equation:"Fe(NO₃)₃(aq) + 3NaOH(aq) → Fe(OH)₃(s) + 3NaNO₃(aq)", products:["Iron(III) Hydroxide (rust-brown precipitate)","Sodium Nitrate"], observations:"Rust-brown precipitate of Fe(OH)₃ forms immediately.", hazards:"Fe(NO₃)₃ is an oxidiser. NaOH is corrosive.", notes:"Confirms Fe³⁺ ions; precipitate dissolves in excess acid." },
+  { a:"Ammonium Chloride", b:"Sodium Hydroxide", type:"Salt-Base Reaction", equation:"NH₄Cl(aq) + NaOH(aq) → NaCl(aq) + NH₃(g) + H₂O(l)", products:["Sodium Chloride","Ammonia gas","Water"], observations:"Pungent ammonia gas evolved on heating. Turns moist red litmus blue.", hazards:"NH₃ gas is toxic — use fume hood.", notes:"Classic test for ammonium ions; ammonia turns moist red litmus paper blue." },
+  { a:"Magnesium Nitrate", b:"Sodium Hydroxide", type:"Precipitation", equation:"Mg(NO₃)₂(aq) + 2NaOH(aq) → Mg(OH)₂(s) + 2NaNO₃(aq)", products:["Magnesium Hydroxide (white precipitate)","Sodium Nitrate"], observations:"White gelatinous precipitate of Mg(OH)₂ forms.", hazards:"NaOH is corrosive. Mg(NO₃)₂ is an oxidiser.", notes:"Mg(OH)₂ precipitate dissolves in excess acid but not in excess NaOH." },
+];
+
+function lookupReaction(nameA, nameB) {
+  const rx = reactionDB.find(r =>
+    (r.a === nameA && r.b === nameB) || (r.a === nameB && r.b === nameA)
+  );
+  if (rx) return rx;
+  // Generic fallback based on categories
+  const ca = chemicals.find(c=>c.name===nameA);
+  const cb = chemicals.find(c=>c.name===nameB);
+  if (!ca || !cb) return null;
+  const cats = [ca.cat, cb.cat].sort().join('+');
+  if (cats === 'acid+base') return { type:"Acid-Base Neutralisation (general)", equation:`${ca.formula} + ${cb.formula} → Salt + H₂O`, products:["Salt","Water"], observations:"Exothermic. pH moves toward neutral.", hazards:"Heat generated. Residual acid/base may remain.", notes:"Exact products depend on specific acid and base concentrations." };
+  if (cats.includes('acid') && cats.includes('reagent')) return { type:"Possible Acid-Reagent Reaction", equation:`${ca.formula} + ${cb.formula} → Products (see notes)`, products:["Varies"], observations:"May produce gas, precipitate, or colour change depending on reagent.", hazards:"Consult individual SDS sheets.", notes:"Specific outcome depends on the reagent — check compatibility matrix." };
+  return { type:"No Significant Reaction / Unknown", equation:"No data available for this pair", products:[], observations:"No reaction data in the local database for this combination.", hazards:"Always consult SDS sheets before mixing.", notes:"Check the Compatibility Matrix tab for storage safety information." };
+}
+
+function runReaction() {
+  const a = document.getElementById('rxnA').value;
+  const b = document.getElementById('rxnB').value;
+  if (!a || !b) { alert('Please select both chemicals.'); return; }
+  if (a === b) { alert('Please select two different chemicals.'); return; }
+
+  const ca = chemicals.find(c=>c.name===a);
+  const cb = chemicals.find(c=>c.name===b);
+  const btn     = document.getElementById('rxnBtn');
+  const loading = document.getElementById('rxnLoading');
+  const result  = document.getElementById('rxnResult');
+
+  result.classList.remove('visible');
+  result.innerHTML = '';
+
+  function renderResult(rx) {
+    result.innerHTML = `
+      <h3>⚗ ${ca.name} + ${cb.name}</h3>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.7px;color:var(--muted);margin-bottom:8px;">${rx.reaction_type || rx.type || 'Reaction'}</div>
+      <div class="equation">${rx.equation || 'See notes'}</div>
+      ${(rx.products||[]).length ? `<div style="margin-bottom:10px"><strong style="font-size:12px">Products:</strong> <span style="font-size:13px">${rx.products.join(', ')}</span></div>` : ''}
+      <div class="safety-item info" style="margin-bottom:8px"><span class="si-icon">👁</span><span><strong>Observations:</strong> ${rx.observations}</span></div>
+      ${rx.hazards ? `<div class="safety-item danger" style="margin-bottom:8px"><span class="si-icon">⚠</span><span><strong>Hazards:</strong> ${rx.hazards}</span></div>` : ''}
+      ${rx.notes ? `<div class="safety-item caution"><span class="si-icon">💡</span><span>${rx.notes}</span></div>` : ''}
+      <div style="font-size:10px;color:var(--muted);margin-top:10px;text-align:right">${rx._source||''}</div>`;
+    result.classList.add('visible');
+  }
+
+  // Try Gemini AI first
+  btn.disabled = true;
+  loading.classList.add('visible');
+  loading.querySelector('span').textContent = 'Gemini AI is predicting the reaction…';
+
+  const prompt = `You are a chemistry expert. Predict the reaction between:
+Chemical A: ${ca.name} (${ca.formula}, hazard: ${ca.haz}, category: ${ca.cat})
+Chemical B: ${cb.name} (${cb.formula}, hazard: ${cb.haz}, category: ${cb.cat})
+
+Respond ONLY in this exact JSON (no markdown, no extra text):
+{
+  "reaction_type": "e.g. Acid-Base Neutralisation",
+  "equation": "balanced chemical equation or 'No significant reaction'",
+  "products": ["product1","product2"],
+  "observations": "what you would observe in the lab",
+  "hazards": "any new hazards from the reaction or products",
+  "notes": "one practical lab note (max 1 sentence)"
+}`;
+
+  callGemini(prompt)
+    .then(text => {
+      let rx;
+      try {
+        rx = JSON.parse(text.replace(/```json|```/g, '').trim());
+        rx._source = '✨ Powered by Gemini AI';
+      } catch {
+        // Gemini returned non-JSON — fall back
+        throw new Error('parse error');
+      }
+      renderResult(rx);
+    })
+    .catch(() => {
+      // Fallback to offline database
+      const rx = lookupReaction(a, b);
+      if (rx) {
+        rx._source = '📚 Offline database (add Gemini API key for AI predictions)';
+        renderResult(rx);
+      } else {
+        result.innerHTML = `<div class="safety-item danger"><span class="si-icon">⚠</span><span>No reaction data found. Add a Gemini API key for AI-powered predictions.</span></div>`;
+        result.classList.add('visible');
+      }
+    })
+    .finally(() => {
+      btn.disabled = false;
+      loading.classList.remove('visible');
+    });
+}
+
+function clearReaction() {
+  document.getElementById('rxnA').value = '';
+  document.getElementById('rxnB').value = '';
+  document.getElementById('rxnResult').classList.remove('visible');
+  document.getElementById('rxnResult').innerHTML = '';
+  updateSlots();
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXPERIMENT GUIDE
+// ══════════════════════════════════════════════════════════════
+function renderExpList() {
+  const list = document.getElementById('expChemList');
+  const expChems = Object.keys(experiments);
+  list.innerHTML = chemicals
+    .filter(c => expChems.includes(c.name))
+    .map(c => {
+      const count = experiments[c.name]?.length || 0;
+      return `<div class="exp-chem-item ${selectedExpChem===c.name?'active':''}" onclick="selectExpChem('${c.name}')">
+        <div>
+          <div class="exp-chem-formula">${c.formula}</div>
+          <div class="exp-chem-name">${c.name}</div>
+        </div>
+        <span class="exp-chem-count">${count}</span>
+      </div>`;
+    }).join('');
+  if (selectedExpChem) renderExpContent(selectedExpChem);
+}
+
+function selectExpChem(name) {
+  selectedExpChem = name;
+  renderExpList();
+}
+
+function renderExpContent(name) {
+  const exps = experiments[name] || [];
+  const c = chemicals.find(x=>x.name===name);
+  const content = document.getElementById('expContent');
+  content.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:18px;font-weight:700">${name}</div>
+      <div style="font-size:12px;color:var(--muted)">${exps.length} common experiment${exps.length!==1?'s':''}</div>
+    </div>
+    <div class="exp-cards">
+      ${exps.map((e,i) => `
+        <div class="exp-card" onclick="loadProcedure(${i},'${name.replace(/'/g,"\\'")}',this)">
+          <div class="exp-card-header">
+            <div class="exp-card-name">${e.name}</div>
+            <span class="exp-card-level level-${e.level}">${e.level}</span>
+          </div>
+          <div class="exp-card-desc">${e.desc}</div>
+          <div class="exp-card-tags">${e.tags.map(t=>`<span class="exp-tag">${t}</span>`).join('')}</div>
+          <div id="proc-${i}" class="exp-procedure"></div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// BUILT-IN PROCEDURE DATABASE (offline, no API needed)
+// ══════════════════════════════════════════════════════════════
+const procedureDB = {
+  "Sodium Hydroxide": {
+    "Soap Making (Saponification)": {
+      objective: "Produce soap by reacting NaOH with vegetable oil (saponification).",
+      materials: ["NaOH pellets (10 g)","Vegetable oil (50 mL)","Distilled water (20 mL)","Beaker (250 mL)","Stirring rod","Hot plate","Saturated NaCl solution","Filter paper"],
+      steps: [
+        "Dissolve 10 g NaOH in 20 mL distilled water in a beaker. Allow to cool — the solution will heat up.",
+        "Slowly add 50 mL vegetable oil to the NaOH solution while stirring continuously.",
+        "Heat the mixture gently on a hot plate at ~60 °C, stirring constantly for 20–30 minutes until it thickens.",
+        "Pour the mixture into saturated NaCl solution to salt out the soap. Stir and allow to solidify.",
+        "Filter the soap using filter paper, wash with cold water, and allow to dry."
+      ],
+      expected_result: "A white or pale yellow solid soap forms. The glycerol by-product remains in the aqueous layer.",
+      safety_note: "NaOH is highly corrosive — wear gloves and goggles at all times. Never add water to NaOH; always add NaOH to water."
+    },
+    "Acid-Base Titration": {
+      objective: "Determine the exact concentration of NaOH by titrating against standard HCl.",
+      materials: ["NaOH solution (unknown conc.)","Standard HCl (0.1 M)","Burette (50 mL)","Conical flask (250 mL)","Phenolphthalein indicator","Pipette (25 mL)","Retort stand"],
+      steps: [
+        "Rinse the burette with standard HCl solution, then fill it to the zero mark. Record the initial reading.",
+        "Pipette 25 mL of NaOH solution into a clean conical flask.",
+        "Add 2–3 drops of phenolphthalein indicator. The solution turns pink.",
+        "Slowly add HCl from the burette, swirling the flask continuously.",
+        "Near the endpoint, add HCl dropwise. Stop when the pink colour just disappears and remains colourless for 30 seconds.",
+        "Record the final burette reading. Calculate the volume of HCl used.",
+        "Repeat for concordant results (within 0.1 mL of each other)."
+      ],
+      expected_result: "The pink phenolphthalein turns colourless at the equivalence point. Use V(HCl) × M(HCl) = V(NaOH) × M(NaOH) to calculate concentration.",
+      safety_note: "Both HCl and NaOH are corrosive — wear gloves and goggles. Dispose of neutralised solution down the drain with excess water."
+    },
+    "Ester Hydrolysis (Saponification)": {
+      objective: "Hydrolyse ethyl acetate using NaOH to produce sodium ethanoate and ethanol.",
+      materials: ["Ethyl acetate (5 mL)","NaOH solution (1 M, 20 mL)","Round-bottom flask","Reflux condenser","Hot plate","pH paper","Beaker"],
+      steps: [
+        "Add 5 mL ethyl acetate and 20 mL of 1 M NaOH to a round-bottom flask.",
+        "Set up a reflux condenser on the flask to prevent evaporation of ethyl acetate.",
+        "Heat the mixture under reflux at ~80 °C for 30 minutes, swirling occasionally.",
+        "Allow to cool. Test the pH of the solution — it should be near neutral if reaction is complete.",
+        "The fruity smell of ethyl acetate should have disappeared, replaced by the odour of ethanol."
+      ],
+      expected_result: "The ester smell disappears. Sodium ethanoate (CH₃COONa) and ethanol are produced. Solution becomes less alkaline as NaOH is consumed.",
+      safety_note: "Ethyl acetate is flammable — ensure no open flames near the apparatus. NaOH is corrosive; wear gloves and goggles."
+    }
+  },
+  "Hydrochloric Acid": {
+    "Acid-Base Titration": {
+      objective: "Titrate HCl against NaOH using phenolphthalein to find the equivalence point.",
+      materials: ["HCl solution (0.1 M)","NaOH solution (0.1 M)","Burette","Conical flask","Phenolphthalein indicator","Pipette (25 mL)","Retort stand"],
+      steps: [
+        "Fill the burette with 0.1 M HCl. Record the initial reading.",
+        "Pipette 25 mL of NaOH into a conical flask and add 2–3 drops of phenolphthalein. Solution turns pink.",
+        "Add HCl from the burette slowly, swirling continuously.",
+        "Near the endpoint, add HCl dropwise until the pink colour just disappears.",
+        "Record the final burette reading and calculate the volume of HCl used.",
+        "Repeat to obtain concordant titres."
+      ],
+      expected_result: "Pink solution turns colourless at the equivalence point. Moles of HCl = Moles of NaOH at endpoint.",
+      safety_note: "HCl and NaOH are corrosive — wear gloves and goggles. Neutralise waste before disposal."
+    },
+    "Reaction with Metals": {
+      objective: "Observe hydrogen gas production when HCl reacts with zinc metal.",
+      materials: ["HCl solution (2 M, 20 mL)","Zinc granules (2 g)","Conical flask","Delivery tube","Trough of water","Inverted test tube","Splint"],
+      steps: [
+        "Set up a gas collection apparatus: conical flask connected via delivery tube to an inverted water-filled test tube.",
+        "Add 20 mL of 2 M HCl to the conical flask.",
+        "Add 2 g of zinc granules. Effervescence begins immediately.",
+        "Collect the gas by downward displacement of water in the inverted test tube.",
+        "When the test tube is full of gas, remove it and test with a lit splint.",
+        "A squeaky pop confirms the presence of hydrogen gas."
+      ],
+      expected_result: "Vigorous bubbling. Zinc dissolves to form ZnCl₂. Hydrogen gas collected gives a squeaky pop with a lit splint.",
+      safety_note: "Hydrogen is highly flammable — keep away from flames during collection. HCl vapour is irritating; work in a ventilated area."
+    },
+    "Preparation of Chlorine Gas": {
+      objective: "Generate chlorine gas by reacting HCl with MnO₂ under controlled heating.",
+      materials: ["Concentrated HCl (20 mL)","MnO₂ powder (5 g)","Round-bottom flask","Delivery tube","Gas washing bottle (water)","Collection flask","Fume hood"],
+      steps: [
+        "Set up the apparatus entirely inside a fume hood.",
+        "Add 5 g MnO₂ to the round-bottom flask. Add 20 mL concentrated HCl.",
+        "Gently heat the flask. Yellow-green Cl₂ gas is produced.",
+        "Pass the gas through a water washing bottle to remove HCl vapour.",
+        "Collect the dry Cl₂ gas by upward displacement of air.",
+        "Test with damp starch-iodide paper — it turns blue-black confirming Cl₂."
+      ],
+      expected_result: "Yellow-green chlorine gas produced. Damp starch-iodide paper turns blue-black. Bleaches damp litmus paper.",
+      safety_note: "Chlorine gas is highly toxic — perform ONLY in a fume hood. Have emergency procedures ready. Never inhale the gas."
+    }
+  },
+  "Potassium Permanganate": {
+    "Permanganate Titration": {
+      objective: "Determine Fe²⁺ concentration using KMnO₄ as a self-indicating oxidant.",
+      materials: ["KMnO₄ solution (0.02 M)","Ammonium ferrous sulphate (Mohr's salt) solution","Dilute H₂SO₄ (2 M)","Burette","Conical flask","Pipette (25 mL)","Hot plate"],
+      steps: [
+        "Pipette 25 mL of Mohr's salt solution into a conical flask.",
+        "Add 10 mL of 2 M H₂SO₄ to acidify the solution.",
+        "Warm the flask to ~60 °C on a hot plate (do not boil).",
+        "Fill the burette with 0.02 M KMnO₄ solution.",
+        "Add KMnO₄ slowly from the burette, swirling continuously. The purple colour decolourises quickly.",
+        "Near the endpoint, add KMnO₄ dropwise. Stop when a faint permanent pink colour persists for 30 seconds.",
+        "Record the volume used and calculate Fe²⁺ concentration."
+      ],
+      expected_result: "KMnO₄ decolourises as it oxidises Fe²⁺ to Fe³⁺. Endpoint is a faint permanent pink. Self-indicating — no external indicator needed.",
+      safety_note: "KMnO₄ stains skin and clothing purple. H₂SO₄ is corrosive. Wear gloves and goggles throughout."
+    },
+    "Baeyer Test for Unsaturation": {
+      objective: "Test for C=C double bonds using dilute KMnO₄ — decolouration indicates unsaturation.",
+      materials: ["KMnO₄ solution (1%, dilute)","Unknown organic compound (e.g. cyclohexene)","Test tubes","Dropper","Test tube rack"],
+      steps: [
+        "Add 1 mL of the organic compound to a test tube.",
+        "Add 3–4 drops of dilute KMnO₄ solution (1%) dropwise.",
+        "Observe the colour change.",
+        "Repeat with a saturated compound (e.g. cyclohexane) as a negative control."
+      ],
+      expected_result: "Positive test: purple KMnO₄ decolourises (turns brown/colourless) — C=C bond present. Negative: purple colour persists.",
+      safety_note: "KMnO₄ is an oxidiser and stains skin. Wear gloves. Some organic compounds are flammable — keep away from flames."
+    },
+    "Oxidation of Glycerol": {
+      objective: "Demonstrate vigorous exothermic oxidation of glycerol by concentrated KMnO₄.",
+      materials: ["KMnO₄ crystals (1 g)","Glycerol (3–4 drops)","Ceramic tile or evaporating dish","Tongs","Safety screen"],
+      steps: [
+        "Place a small pile of KMnO₄ crystals on a ceramic tile in a fume hood.",
+        "Using a dropper, add 3–4 drops of glycerol directly onto the KMnO₄ crystals.",
+        "Stand back immediately behind a safety screen.",
+        "Observe the reaction — it may take 10–30 seconds to initiate."
+      ],
+      expected_result: "After a short delay, the mixture spontaneously ignites producing a purple flame and dense smoke. Highly exothermic.",
+      safety_note: "DEMONSTRATION ONLY — perform in a fume hood with a safety screen. Have a fire extinguisher ready. Never touch the reacting mixture."
+    }
+  },
+  "Hydrogen Peroxide": {
+    "Catalytic Decomposition": {
+      objective: "Decompose H₂O₂ using MnO₂ as a catalyst to produce oxygen gas.",
+      materials: ["H₂O₂ solution (20 vol, 50 mL)","MnO₂ powder (0.5 g)","Conical flask","Delivery tube","Trough of water","Inverted test tube","Glowing splint"],
+      steps: [
+        "Set up gas collection apparatus with the conical flask connected to an inverted water-filled test tube.",
+        "Add 50 mL of H₂O₂ solution to the conical flask.",
+        "Add a small spatula of MnO₂ powder. Vigorous effervescence begins immediately.",
+        "Collect the oxygen gas by downward displacement of water.",
+        "Test the collected gas with a glowing splint."
+      ],
+      expected_result: "Rapid O₂ gas evolution. Glowing splint relights — confirms oxygen. MnO₂ is unchanged (catalyst).",
+      safety_note: "Concentrated H₂O₂ is a strong oxidiser — avoid skin contact. O₂ supports combustion; keep flames away during collection."
+    },
+    "Elephant Toothpaste": {
+      objective: "Demonstrate rapid catalytic decomposition of H₂O₂ using KI to produce a foam column.",
+      materials: ["H₂O₂ (30%, 50 mL)","KI solution (1 M, 10 mL)","Liquid dish soap (5 mL)","Food colouring (optional)","Tall measuring cylinder (500 mL)","Safety screen"],
+      steps: [
+        "Place the tall measuring cylinder on a tray (the foam will overflow).",
+        "Add 50 mL of 30% H₂O₂ to the cylinder.",
+        "Add 5 mL of dish soap and a few drops of food colouring. Mix gently.",
+        "Quickly pour in 10 mL of KI solution and step back.",
+        "Observe the rapid foam eruption."
+      ],
+      expected_result: "A large column of warm foam erupts rapidly from the cylinder. The foam is warm due to the exothermic decomposition of H₂O₂.",
+      safety_note: "30% H₂O₂ is a strong oxidiser and causes burns — wear gloves and goggles. The foam is hot; do not touch immediately."
+    },
+    "Fenton's Reaction": {
+      objective: "Generate hydroxyl radicals by reacting H₂O₂ with Fe²⁺ ions (Fenton's reagent).",
+      materials: ["H₂O₂ (3%, 20 mL)","FeSO₄ solution (0.1 M, 5 mL)","Dilute H₂SO₄","Organic dye solution (e.g. methylene blue)","Beaker","Stirring rod"],
+      steps: [
+        "Add 20 mL of dye solution to a beaker.",
+        "Add 5 mL of FeSO₄ solution and acidify with a few drops of dilute H₂SO₄.",
+        "Add 20 mL of 3% H₂O₂ and stir.",
+        "Observe the decolouration of the dye over 5–15 minutes."
+      ],
+      expected_result: "The coloured dye is oxidised and decolourised by hydroxyl radicals. Demonstrates advanced oxidation processes.",
+      safety_note: "H₂O₂ is an oxidiser. H₂SO₄ is corrosive. Wear gloves and goggles. Dispose of waste as per lab regulations."
+    }
+  },
+  "Acetic Acid": {
+    "Fischer Esterification": {
+      objective: "Synthesise ethyl acetate by reacting glacial acetic acid with ethanol using H₂SO₄ catalyst.",
+      materials: ["Glacial acetic acid (10 mL)","Ethanol (10 mL)","Concentrated H₂SO₄ (1 mL, catalyst)","Round-bottom flask","Reflux condenser","Separating funnel","Anhydrous Na₂SO₄","Distillation apparatus"],
+      steps: [
+        "Add 10 mL ethanol and 10 mL glacial acetic acid to a round-bottom flask.",
+        "Carefully add 1 mL concentrated H₂SO₄ as catalyst. Mix gently.",
+        "Set up a reflux condenser and heat under reflux for 30 minutes.",
+        "Allow to cool. Pour into a separating funnel and add saturated Na₂CO₃ solution to neutralise acid.",
+        "Separate the organic (upper) layer. Wash with saturated NaCl solution.",
+        "Dry the organic layer over anhydrous Na₂SO₄, filter, and distil to collect ethyl acetate (bp 77 °C)."
+      ],
+      expected_result: "Sweet fruity-smelling ethyl acetate is produced. Yield is typically 60–70% due to equilibrium.",
+      safety_note: "Glacial acetic acid and H₂SO₄ are corrosive. Ethanol is flammable — no open flames. Work in a fume hood."
+    },
+    "Acetate Buffer Preparation": {
+      objective: "Prepare an acetate buffer at pH 4.76 and verify using a pH meter.",
+      materials: ["Acetic acid (0.1 M, 100 mL)","Sodium acetate (0.1 M, 100 mL)","pH meter (calibrated)","Beakers","Stirring rod","Volumetric flask (200 mL)"],
+      steps: [
+        "Calibrate the pH meter using standard buffer solutions (pH 4 and 7).",
+        "Mix equal volumes (100 mL each) of 0.1 M acetic acid and 0.1 M sodium acetate.",
+        "Measure the pH of the resulting buffer — it should be ~4.76.",
+        "Test the buffer capacity: add 1 mL of 0.1 M HCl and measure pH change.",
+        "Add 1 mL of 0.1 M NaOH to a fresh sample and measure pH change.",
+        "Compare pH changes to unbuffered water to demonstrate buffering action."
+      ],
+      expected_result: "Buffer pH ≈ 4.76. Addition of small amounts of acid or base causes minimal pH change compared to unbuffered water.",
+      safety_note: "Acetic acid has a pungent odour — work in a ventilated area. NaOH and HCl are corrosive; wear gloves and goggles."
+    },
+    "Aspirin Synthesis": {
+      objective: "Synthesise aspirin (acetylsalicylic acid) from salicylic acid and acetic anhydride.",
+      materials: ["Salicylic acid (2 g)","Acetic anhydride (3 mL)","Concentrated H₂SO₄ (5 drops, catalyst)","Distilled water (20 mL)","Ice bath","Buchner funnel","Filter paper","Ethanol (for recrystallisation)"],
+      steps: [
+        "Weigh 2 g salicylic acid into a 100 mL conical flask.",
+        "Add 3 mL acetic anhydride and 5 drops concentrated H₂SO₄. Swirl to mix.",
+        "Heat in a water bath at 85 °C for 15 minutes.",
+        "Carefully add 20 mL cold distilled water to decompose excess acetic anhydride.",
+        "Cool in an ice bath until crystals form.",
+        "Filter using a Buchner funnel. Wash crystals with cold water.",
+        "Recrystallise from hot ethanol for purity. Dry and weigh the product."
+      ],
+      expected_result: "White crystalline aspirin forms. Melting point should be 135–136 °C. FeCl₃ test: no purple colour (unlike salicylic acid).",
+      safety_note: "Acetic anhydride is corrosive and lachrymatory. H₂SO₄ is corrosive. Work in a fume hood; wear gloves and goggles."
+    }
+  },
+  "Iodine": {
+    "Starch-Iodine Test": {
+      objective: "Detect the presence of starch in food samples using iodine solution.",
+      materials: ["Iodine solution (0.1 M in KI)","Food samples (bread, potato, rice, apple)","White tile","Dropper","Knife or grater"],
+      steps: [
+        "Place small samples of each food on a white tile.",
+        "Add 1–2 drops of iodine solution to each sample.",
+        "Observe the colour change immediately.",
+        "Record which samples give a positive result (blue-black colour)."
+      ],
+      expected_result: "Starch-containing foods (bread, potato, rice) turn deep blue-black. Non-starch foods (apple, meat) remain brown.",
+      safety_note: "Iodine solution stains skin and clothing brown. Wear gloves. Avoid contact with eyes — iodine is irritating."
+    },
+    "Iodometric Titration": {
+      objective: "Determine vitamin C concentration by iodometric back-titration.",
+      materials: ["Vitamin C tablet (dissolved in 250 mL water)","Iodine solution (0.005 M)","Starch indicator","Burette","Conical flask","Pipette (25 mL)"],
+      steps: [
+        "Dissolve one vitamin C tablet in 250 mL distilled water in a volumetric flask.",
+        "Pipette 25 mL of the vitamin C solution into a conical flask.",
+        "Add 1 mL starch indicator solution.",
+        "Fill the burette with 0.005 M iodine solution.",
+        "Titrate slowly, swirling continuously. The blue-black colour will decolourise quickly.",
+        "Stop when a faint blue-black colour persists for 30 seconds.",
+        "Calculate vitamin C content from the volume of iodine used."
+      ],
+      expected_result: "Vitamin C reduces I₂ to I⁻. Endpoint: faint permanent blue-black from starch-iodine complex. Calculate mg of vitamin C per tablet.",
+      safety_note: "Iodine stains skin and surfaces. Wear gloves. Starch indicator must be freshly prepared for accurate results."
+    },
+    "Halogenation of Alkene": {
+      objective: "Test for C=C unsaturation by adding iodine across the double bond.",
+      materials: ["Iodine solution in CCl₄ (0.1 M)","Cyclohexene (unsaturated, 1 mL)","Cyclohexane (saturated, 1 mL, control)","Test tubes","Dropper"],
+      steps: [
+        "Add 1 mL cyclohexene to one test tube and 1 mL cyclohexane to another.",
+        "Add 3–4 drops of iodine/CCl₄ solution to each test tube.",
+        "Observe the colour change in each tube.",
+        "Compare results between the unsaturated and saturated compound."
+      ],
+      expected_result: "Cyclohexene: brown iodine decolourises (I₂ adds across C=C). Cyclohexane: brown colour persists (no reaction).",
+      safety_note: "CCl₄ is toxic and a suspected carcinogen — use in a fume hood. Iodine stains; wear gloves and goggles."
+    }
+  },
+  "Ethanol": {
+    "Ethanol Extraction": {
+      objective: "Extract chlorophyll and other pigments from plant material using ethanol.",
+      materials: ["Fresh spinach leaves (5 g)","Ethanol (20 mL)","Mortar and pestle","Beaker","Filter paper","Funnel","TLC plate (optional)"],
+      steps: [
+        "Tear spinach leaves into small pieces and place in a mortar.",
+        "Add 20 mL ethanol and grind thoroughly with the pestle.",
+        "Filter the green extract through filter paper into a beaker.",
+        "Observe the deep green colour of the chlorophyll extract.",
+        "Optional: spot the extract on a TLC plate and develop with a non-polar solvent to separate pigments."
+      ],
+      expected_result: "A deep green ethanol extract containing chlorophyll a, chlorophyll b, and carotenoids. TLC shows separate coloured bands.",
+      safety_note: "Ethanol is flammable — no open flames. Work in a ventilated area. Dispose of ethanol waste in the organic solvent waste container."
+    },
+    "Recrystallization Solvent": {
+      objective: "Purify an impure solid (e.g. benzoic acid) by recrystallisation from hot ethanol.",
+      materials: ["Impure benzoic acid (1 g)","Ethanol (15 mL)","Hot plate","Beaker (100 mL)","Ice bath","Buchner funnel","Filter paper"],
+      steps: [
+        "Dissolve 1 g impure benzoic acid in minimum hot ethanol (~10 mL) in a beaker.",
+        "If undissolved impurities remain, filter the hot solution through fluted filter paper.",
+        "Allow the filtrate to cool slowly to room temperature, then in an ice bath.",
+        "Crystals of pure benzoic acid form as the solution cools.",
+        "Filter the crystals using a Buchner funnel. Wash with a small amount of cold ethanol.",
+        "Dry the crystals and determine the melting point to confirm purity (mp 122 °C)."
+      ],
+      expected_result: "Pure white needle-like crystals of benzoic acid. Melting point should be sharp at 122 °C, confirming purity.",
+      safety_note: "Ethanol is flammable — use a water bath for heating, not a direct flame. Wear gloves and goggles."
+    },
+    "Esterification with Acetic Acid": {
+      objective: "Produce ethyl acetate from ethanol and glacial acetic acid with H₂SO₄ catalyst.",
+      materials: ["Ethanol (10 mL)","Glacial acetic acid (10 mL)","Concentrated H₂SO₄ (1 mL)","Round-bottom flask","Reflux condenser","Separating funnel","Anhydrous Na₂SO₄"],
+      steps: [
+        "Mix 10 mL ethanol and 10 mL glacial acetic acid in a round-bottom flask.",
+        "Add 1 mL concentrated H₂SO₄ carefully as catalyst.",
+        "Reflux the mixture for 30 minutes.",
+        "Cool and pour into a separating funnel. Add saturated Na₂CO₃ to neutralise acid.",
+        "Separate the upper organic layer. Wash with saturated NaCl.",
+        "Dry over anhydrous Na₂SO₄, filter, and distil to collect ethyl acetate (bp 77 °C)."
+      ],
+      expected_result: "Sweet-smelling ethyl acetate is produced. Yield ~60–70% due to equilibrium. Confirmed by fruity odour and bp 77 °C.",
+      safety_note: "Ethanol and ethyl acetate are flammable. H₂SO₄ is corrosive. No open flames; use a water bath. Wear gloves and goggles."
+    }
+  },
+  "Cupric Sulphate": {
+    "Fehling's Test": {
+      objective: "Test for reducing sugars using Fehling's solution containing CuSO₄.",
+      materials: ["Fehling's solution A (CuSO₄)","Fehling's solution B (NaOH + sodium potassium tartrate)","Glucose solution (2%)","Sucrose solution (2%, negative control)","Test tubes","Water bath"],
+      steps: [
+        "Mix equal volumes (2 mL each) of Fehling's A and Fehling's B in a test tube.",
+        "Add 1 mL of glucose solution to the Fehling's mixture.",
+        "Heat in a boiling water bath for 5 minutes.",
+        "Observe the colour change.",
+        "Repeat with sucrose solution as a negative control."
+      ],
+      expected_result: "Glucose (reducing sugar): blue Fehling's solution turns brick-red Cu₂O precipitate. Sucrose: no change (non-reducing sugar).",
+      safety_note: "NaOH in Fehling's B is corrosive. Wear gloves and goggles. The water bath is hot — use tongs to handle test tubes."
+    },
+    "Copper Electroplating": {
+      objective: "Electroplate a metal object with copper using CuSO₄ electrolyte.",
+      materials: ["CuSO₄ solution (1 M, 100 mL)","Copper anode","Metal object (cathode, e.g. iron nail)","DC power supply (3–6 V)","Connecting wires","Beaker","Sandpaper"],
+      steps: [
+        "Clean the metal object (cathode) with sandpaper to remove oxide layer.",
+        "Set up the electrolytic cell: copper plate as anode, metal object as cathode, in CuSO₄ solution.",
+        "Connect to the DC power supply (3–6 V). Ensure correct polarity.",
+        "Switch on and observe for 10–15 minutes.",
+        "Remove the cathode, rinse with water, and observe the copper coating."
+      ],
+      expected_result: "A shiny pink-red copper layer deposits on the cathode. The copper anode dissolves slightly, maintaining Cu²⁺ concentration.",
+      safety_note: "CuSO₄ is toxic to aquatic organisms — dispose as hazardous waste. Electrical connections must be secure to avoid short circuits."
+    },
+    "Biuret Protein Test": {
+      objective: "Detect peptide bonds in proteins using CuSO₄ in alkaline solution.",
+      materials: ["CuSO₄ solution (1%)","NaOH solution (10%)","Egg white solution (protein)","Glucose solution (negative control)","Test tubes","Dropper"],
+      steps: [
+        "Add 2 mL of egg white solution to a test tube.",
+        "Add 1 mL of 10% NaOH solution. Mix.",
+        "Add 3–4 drops of 1% CuSO₄ solution. Mix gently.",
+        "Observe the colour change.",
+        "Repeat with glucose solution as a negative control."
+      ],
+      expected_result: "Protein (egg white): solution turns violet/purple — peptide bonds present. Glucose: remains blue — no peptide bonds.",
+      safety_note: "NaOH is corrosive. Wear gloves and goggles. CuSO₄ is toxic to aquatic organisms — dispose as hazardous waste."
+    }
+  },
+  "Ammonium Ferrous Sulphate": {
+    "KMnO₄ Standardization": {
+      objective: "Standardise KMnO₄ solution using Mohr's salt as a primary standard.",
+      materials: ["Mohr's salt (primary standard, weighed accurately)","KMnO₄ solution (approx. 0.02 M)","Dilute H₂SO₄ (2 M)","Burette","Conical flask","Hot plate","Analytical balance"],
+      steps: [
+        "Accurately weigh ~1.96 g Mohr's salt and dissolve in 100 mL distilled water in a volumetric flask.",
+        "Add 10 mL of 2 M H₂SO₄ to acidify.",
+        "Pipette 25 mL of this solution into a conical flask. Warm to ~60 °C.",
+        "Fill the burette with KMnO₄ solution.",
+        "Titrate slowly — the purple colour decolourises. Near endpoint, add dropwise.",
+        "Stop at the first permanent faint pink colour. Record volume.",
+        "Calculate exact molarity of KMnO₄ using M₁V₁ = M₂V₂ (adjusted for stoichiometry)."
+      ],
+      expected_result: "Accurate KMnO₄ concentration determined. Self-indicating — no external indicator needed. Concordant titres within 0.1 mL.",
+      safety_note: "KMnO₄ stains skin and clothing. H₂SO₄ is corrosive. Wear gloves and goggles. Dispose of Mn²⁺ waste as per regulations."
+    },
+    "Preparation of Mohr's Salt": {
+      objective: "Prepare Mohr's salt crystals from FeSO₄ and (NH₄)₂SO₄ by crystallisation.",
+      materials: ["FeSO₄·7H₂O (13.9 g)","(NH₄)₂SO₄ (6.6 g)","Dilute H₂SO₄ (5 mL)","Distilled water (50 mL)","Evaporating dish","Hot plate","Buchner funnel"],
+      steps: [
+        "Dissolve 13.9 g FeSO₄·7H₂O in 25 mL hot distilled water with a few drops of dilute H₂SO₄.",
+        "Dissolve 6.6 g (NH₄)₂SO₄ in 25 mL hot distilled water separately.",
+        "Mix both solutions while hot. Add a few more drops of H₂SO₄ to prevent oxidation.",
+        "Evaporate the solution on a hot plate until crystallisation begins.",
+        "Cool slowly. Filter the pale green crystals using a Buchner funnel.",
+        "Wash with a small amount of cold ethanol and dry."
+      ],
+      expected_result: "Pale green monoclinic crystals of Mohr's salt form. More stable than FeSO₄ alone due to the double salt structure.",
+      safety_note: "H₂SO₄ is corrosive. FeSO₄ oxidises in air — work quickly and keep solution acidic. Wear gloves and goggles."
+    }
+  },
+  "Sodium Chloride": {
+    "Electrolysis of Brine": {
+      objective: "Electrolyse saturated NaCl solution to produce Cl₂, H₂, and NaOH.",
+      materials: ["Saturated NaCl solution (100 mL)","Carbon electrodes (2)","DC power supply (6 V)","Connecting wires","Beaker","Test tubes (2)","Damp litmus paper","Glowing splint"],
+      steps: [
+        "Fill the beaker with saturated NaCl solution.",
+        "Set up two carbon electrodes connected to the DC power supply.",
+        "Invert two water-filled test tubes over each electrode to collect gases.",
+        "Switch on the power supply (6 V). Observe gas evolution at both electrodes.",
+        "Collect the gases and test: anode gas with damp litmus paper; cathode gas with a glowing splint.",
+        "Test the remaining solution with pH paper."
+      ],
+      expected_result: "Anode: Cl₂ gas (bleaches damp litmus). Cathode: H₂ gas (relights glowing splint). Solution becomes alkaline (NaOH formed).",
+      safety_note: "Cl₂ is toxic — perform in a fume hood or well-ventilated area. H₂ is flammable — keep flames away from cathode."
+    },
+    "Osmosis Demonstration": {
+      objective: "Demonstrate osmosis using NaCl solutions of different concentrations.",
+      materials: ["NaCl solutions (0.1 M, 0.5 M, 1 M)","Distilled water","Dialysis tubing (or potato cylinders)","Beakers","Ruler","Balance"],
+      steps: [
+        "Cut potato cylinders of equal size (3 cm each). Weigh each accurately.",
+        "Place cylinders in beakers containing: distilled water, 0.1 M, 0.5 M, and 1 M NaCl.",
+        "Leave for 30–60 minutes.",
+        "Remove cylinders, blot dry, and reweigh.",
+        "Calculate percentage change in mass for each concentration."
+      ],
+      expected_result: "Distilled water: potato gains mass (water enters by osmosis). High NaCl: potato loses mass (water leaves). Isotonic point where no change occurs.",
+      safety_note: "No significant hazards. Ensure potato cylinders are of equal size for fair comparison. Blot dry consistently before weighing."
+    }
+  },
+  "Oxalic Acid": {
+    "Permanganate Titration": {
+      objective: "Titrate oxalic acid with KMnO₄ in acid medium — classic redox standardisation.",
+      materials: ["Oxalic acid solution (0.1 M)","KMnO₄ solution (0.02 M)","Dilute H₂SO₄ (2 M)","Burette","Conical flask","Hot plate","Pipette (25 mL)"],
+      steps: [
+        "Pipette 25 mL of oxalic acid solution into a conical flask.",
+        "Add 10 mL of 2 M H₂SO₄ and warm to ~60 °C.",
+        "Fill the burette with KMnO₄ solution.",
+        "Add KMnO₄ slowly. The first few drops decolourise slowly (reaction is slow initially).",
+        "As Mn²⁺ forms, it catalyses the reaction (autocatalysis) — decolouration becomes faster.",
+        "Continue until a faint permanent pink colour persists for 30 seconds.",
+        "Record volume and calculate concentration."
+      ],
+      expected_result: "Self-indicating reaction. Purple KMnO₄ decolourises as it oxidises oxalic acid to CO₂. Autocatalytic — speeds up as reaction proceeds.",
+      safety_note: "H₂SO₄ is corrosive. KMnO₄ stains skin. Wear gloves and goggles. Warm solution carefully — do not boil."
+    },
+    "Rust Removal": {
+      objective: "Remove iron oxide (rust) from a metal surface using dilute oxalic acid.",
+      materials: ["Oxalic acid solution (5%, 100 mL)","Rusty metal object","Beaker","Tongs","Soft brush","Distilled water","Protective gloves"],
+      steps: [
+        "Prepare a 5% oxalic acid solution in a beaker.",
+        "Submerge the rusty metal object in the solution.",
+        "Leave for 15–30 minutes, occasionally brushing the surface gently.",
+        "Remove the object with tongs and rinse thoroughly with distilled water.",
+        "Dry immediately to prevent re-rusting.",
+        "Observe the removal of rust (iron oxide) from the surface."
+      ],
+      expected_result: "Rust (Fe₂O₃) dissolves as oxalic acid forms soluble iron oxalate complexes. Metal surface appears cleaner.",
+      safety_note: "Oxalic acid is toxic if ingested. Wear gloves — avoid skin contact. Dispose of the iron-containing solution as hazardous waste."
+    }
+  }
+};
+
+function getProcedure(chemName, expName) {
+  return procedureDB[chemName]?.[expName] || null;
+}
+
+function loadProcedure(idx, chemName, cardEl) {
+  const procDiv = document.getElementById(`proc-${idx}`);
+  if (procDiv.classList.contains('visible')) {
+    procDiv.classList.remove('visible'); return;
+  }
+  document.querySelectorAll('.exp-procedure').forEach(p => p.classList.remove('visible'));
+  procDiv.classList.add('visible');
+
+  const exp = experiments[chemName][idx];
+  const c   = chemicals.find(x => x.name === chemName);
+
+  function renderProc(pr, source) {
+    procDiv.innerHTML = `
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px">${exp.name}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px"><em>${pr.objective}</em></div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:5px">Materials</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">${(pr.materials||[]).map(m=>`<span class="c-tag">${m}</span>`).join('')}</div>
+        </div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:7px">Procedure</div>
+        <div class="exp-steps-list">
+          ${(pr.steps||[]).map((s,i)=>`<div class="exp-step" style="animation-delay:${i*0.07}s"><div class="exp-step-num">${i+1}</div><div>${s}</div></div>`).join('')}
+        </div>
+        <div class="safety-item info" style="margin-top:10px;"><span class="si-icon">✅</span><span><strong>Expected:</strong> ${pr.expected_result}</span></div>
+        <div class="safety-item caution" style="margin-top:6px;"><span class="si-icon">⚠</span><span>${pr.safety_note}</span></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:right">${source}</div>
+      </div>`;
+  }
+
+  // Try offline DB first (instant)
+  const offlinePr = getProcedure(chemName, exp.name);
+  if (offlinePr) {
+    renderProc(offlinePr, '📚 Offline database');
+    // Then try to upgrade with Gemini in background
+    if (GEMINI_API_KEY && GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE") {
+      const prompt = `Write a concise university lab procedure for: "${exp.name}" using ${chemName} (${c.formula}).
+
+Respond ONLY in this exact JSON (no markdown):
+{
+  "objective": "one sentence",
+  "materials": ["item1 (quantity)","item2",...],
+  "steps": ["Step 1 text","Step 2 text",...],
+  "expected_result": "what should happen",
+  "safety_note": "one key safety precaution"
+}`;
+      callGemini(prompt).then(text => {
+        try {
+          const pr = JSON.parse(text.replace(/```json|```/g,'').trim());
+          renderProc(pr, '✨ Powered by Gemini AI');
+        } catch { /* keep offline version */ }
+      }).catch(() => { /* keep offline version */ });
+    }
+    return;
+  }
+
+  // No offline data — use Gemini or show fallback
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+    procDiv.innerHTML = `
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div class="safety-item info"><span class="si-icon">ℹ</span>
+          <span><strong>${exp.name}</strong> — ${exp.desc}</span>
+        </div>
+        <div class="safety-item caution" style="margin-top:6px"><span class="si-icon">⚠</span>
+          <span>Add a Gemini API key for AI-generated procedures.</span>
+        </div>
+      </div>`;
+    return;
+  }
+
+  procDiv.innerHTML = `<div class="gen-loading"><div class="spinner"></div><span>Gemini AI is writing the procedure…</span></div>`;
+
+  const prompt = `Write a concise university lab procedure for: "${exp.name}" using ${chemName} (${c.formula}).
+
+Respond ONLY in this exact JSON (no markdown):
+{
+  "objective": "one sentence",
+  "materials": ["item1 (quantity)","item2",...],
+  "steps": ["Step 1 text","Step 2 text",...],
+  "expected_result": "what should happen",
+  "safety_note": "one key safety precaution"
+}`;
+
+  callGemini(prompt)
+    .then(text => {
+      const pr = JSON.parse(text.replace(/```json|```/g,'').trim());
+      renderProc(pr, '✨ Powered by Gemini AI');
+    })
+    .catch(() => {
+      procDiv.innerHTML = `<div class="safety-item danger" style="margin-top:8px"><span class="si-icon">⚠</span><span>Failed to generate procedure. Check your API key or connection.</span></div>`;
+    });
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// COMPATIBILITY MATRIX
+// ══════════════════════════════════════════════════════════════
+function renderMatrix() {
+  const table = document.getElementById('compatMatrix');
+  const icons = {0:'✓', 1:'⚠', 2:'✗', [-1]:'—'};
+  const cls   = {0:'compat-safe', 1:'compat-caution', 2:'compat-danger', [-1]:'compat-same'};
+
+  let html = '<thead><tr><th class="row-header">Chemical</th>';
+  matrixChems.forEach(name => {
+    const abbr = name.split(' ').map(w=>w[0]).join('').slice(0,4);
+    html += `<th class="col-header" title="${name}">${abbr}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  matrixChems.forEach(rowName => {
+    const abbr = rowName.length > 20 ? rowName.slice(0,19)+'…' : rowName;
+    const chem = chemicals.find(c=>c.name===rowName);
+    html += `<tr><th class="row-header" style="text-align:left;font-size:10px;max-width:140px;white-space:normal;font-family:var(--font-body)">${abbr}</th>`;
+    matrixChems.forEach(colName => {
+      const val = compatData[rowName]?.[colName] ?? 0;
+      const tooltip = val === -1 ? '' : (val === 0 ? 'Safe to store together.' : getCompatReason(rowName, colName, val) || '');
+      html += `<td class="matrix-cell ${cls[val]}" 
+        data-row="${rowName}" data-col="${colName}" data-val="${val}"
+        data-tip="${tooltip.replace(/"/g,"'")}"
+        onmouseenter="showCompatTip(event)" onmouseleave="hideCompatTip()"
+        ontouchstart="showCompatTip(event)" ontouchend="hideCompatTip()">
+        <span class="compat-icon" style="color:${val===2?'var(--high)':val===1?'var(--med)':val===0?'var(--low)':'var(--muted)'}">${icons[val]}</span>
+      </td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function showCompatTip(e) {
+  const td = e.currentTarget;
+  const tip = document.getElementById('compatTooltip');
+  const r = td.dataset.row, c = td.dataset.col, v = td.dataset.val;
+  const msg = td.dataset.tip;
+  if (!msg || v == -1) { tip.style.display = 'none'; return; }
+  const lvlLabel = v == 2 ? '✗ Never store together' : v == 1 ? '⚠ Store separately' : '✓ Safe to store together';
+  tip.innerHTML = `<strong>${r.split(' ')[0]} + ${c.split(' ')[0]}</strong><br>${lvlLabel}<br><span style="opacity:0.85">${msg}</span>`;
+  const rect = td.getBoundingClientRect();
+  tip.style.display = 'block';
+  tip.style.left = Math.min(rect.left + 10, window.innerWidth - 300) + 'px';
+  tip.style.top  = (rect.bottom + 6) + 'px';
+}
+
+function hideCompatTip() {
+  document.getElementById('compatTooltip').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════════════
+// STOCK TRACKER
+// ══════════════════════════════════════════════════════════════
+function getStockStatus(name) {
+  const s = stockData[name];
+  if (s.qty === null) return 'na';
+  if (s.qty === 0) return 'empty';
+  if (s.qty <= s.threshold) return 'low';
+  return 'ok';
+}
+
+function renderStock() {
+  const filter = document.getElementById('stockFilter').value;
+  const body = document.getElementById('stockBody');
+  let ok=0, low=0, empty=0, na=0;
+  chemicals.forEach(c => {
+    const st = getStockStatus(c.name);
+    if(st==='ok') ok++; else if(st==='low') low++; else if(st==='empty') empty++; else na++;
+  });
+  document.getElementById('ss-ok').textContent    = ok;
+  document.getElementById('ss-low').textContent   = low;
+  document.getElementById('ss-empty').textContent = empty;
+  document.getElementById('ss-na').textContent    = na;
+
+  const filtered = chemicals.filter(c => {
+    if (filter === 'all') return true;
+    return getStockStatus(c.name) === filter;
+  });
+
+  const statusLabel = { ok:'In Stock', low:'Low Stock', empty:'Out of Stock', na:'Not Recorded' };
+  const statusCls   = { ok:'status-ok', low:'status-low', empty:'status-empty', na:'status-na' };
+
+  body.innerHTML = filtered.map(c => {
+    const s = stockData[c.name];
+    const st = getStockStatus(c.name);
+    const rowStyle = st === 'empty' ? 'background:var(--high-bg)' : st === 'low' ? 'background:var(--med-bg)' : '';
+    return `<tr style="${rowStyle}">
+      <td style="font-weight:500">${c.name}</td>
+      <td class="formula-cell">${c.formula}</td>
+      <td><span class="c-tag">${c.cat}</span></td>
+      <td><span class="haz-badge haz-${c.haz}" style="position:static;display:inline-block">${c.haz}</span></td>
+      <td><input class="qty-input" type="number" min="0" step="1" value="${s.qty !== null ? s.qty : ''}" placeholder="—" oninput="updateQty('${c.name.replace(/'/g,"\\'")}',this.value)"></td>
+      <td><select class="unit-select" onchange="updateUnit('${c.name.replace(/'/g,"\\'")}',this.value)">
+        <option value="g"  ${s.unit==='g'?'selected':''}>g</option>
+        <option value="mL" ${s.unit==='mL'?'selected':''}>mL</option>
+        <option value="L"  ${s.unit==='L'?'selected':''}>L</option>
+        <option value="kg" ${s.unit==='kg'?'selected':''}>kg</option>
+        <option value="units" ${s.unit==='units'?'selected':''}>units</option>
+      </select></td>
+      <td><input class="threshold-input" type="number" min="0" value="${s.threshold}" oninput="updateThreshold('${c.name.replace(/'/g,"\\'")}',this.value)"></td>
+      <td><span class="stock-status-badge ${statusCls[st]}">${statusLabel[st]}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function updateQty(name, val) {
+  stockData[name].qty = val === '' ? null : parseFloat(val);
+  renderStock();
+  // Also refresh cards if on chemicals tab
+  if (activeTab === 'chemicals') render();
+}
+function updateUnit(name, val) { stockData[name].unit = val; }
+function updateThreshold(name, val) { stockData[name].threshold = parseFloat(val) || 50; renderStock(); }
+
+function exportCSV() {
+  const header = ['Chemical','Formula','Category','Hazard','Quantity','Unit','Alert Below','Status'];
+  const rows = chemicals.map(c => {
+    const s = stockData[c.name];
+    const st = getStockStatus(c.name);
+    return [c.name, c.formula, c.cat, c.haz, s.qty !== null ? s.qty : '', s.unit, s.threshold, st].join(',');
+  });
+  const csv = [header.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'SJCIT_LabChem_Stock.csv';
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════════════
+// DARK / LIGHT MODE TOGGLE
+// ══════════════════════════════════════════════════════════════
+let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+function applyTheme() {
+  document.body.classList.toggle('force-dark', darkMode);
+  document.body.classList.toggle('force-light', !darkMode);
+  document.getElementById('themeToggle').textContent = darkMode ? '☀️' : '🌙';
+  localStorage.setItem('sjcit-theme', darkMode ? 'dark' : 'light');
+}
+function toggleTheme() { darkMode = !darkMode; applyTheme(); }
+(function initTheme() {
+  const saved = localStorage.getItem('sjcit-theme');
+  if (saved) darkMode = saved === 'dark';
+  applyTheme();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// DRAG & DROP — chemicals → reaction slots
+// ══════════════════════════════════════════════════════════════
+function dragChemical(event, name) {
+  event.dataTransfer.setData('text/plain', name);
+  event.dataTransfer.effectAllowed = 'copy';
+}
+function dropToSlot(event, slot) {
+  event.preventDefault();
+  const name = event.dataTransfer.getData('text/plain');
+  event.currentTarget.classList.remove('drag-over');
+  if (!name) return;
+  const selId = slot === 'A' ? 'rxnA' : 'rxnB';
+  document.getElementById(selId).value = name;
+  updateSlots();
+  // Switch to reaction tab if not already there
+  if (activeTab !== 'reaction') {
+    const btn = document.querySelector('.nav-tab:nth-child(2)');
+    switchTab('reaction', btn);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// BEAKER ANIMATION
+// ══════════════════════════════════════════════════════════════
+const chemColors = {
+  acid:    { liquid:'rgba(255,220,50,0.7)',  result:'rgba(255,200,30,0.6)'  },
+  base:    { liquid:'rgba(100,180,255,0.7)', result:'rgba(180,220,255,0.6)' },
+  solvent: { liquid:'rgba(180,240,200,0.6)', result:'rgba(200,240,210,0.5)' },
+  reagent: { liquid:'rgba(200,150,255,0.7)', result:'rgba(220,180,255,0.6)' },
+};
+const reactionColors = {
+  'Acid-Base Neutralisation':    'rgba(200,240,200,0.8)',
+  'Precipitation':               'rgba(240,240,240,0.9)',
+  'Redox Reaction':              'rgba(255,160,80,0.8)',
+  'Redox Titration':             'rgba(255,160,80,0.8)',
+  'Esterification':              'rgba(255,230,180,0.8)',
+  'Complex Formation':           'rgba(30,80,200,0.85)',
+  'Disproportionation':          'rgba(180,100,220,0.7)',
+  'Salt-Acid Displacement':      'rgba(255,240,150,0.8)',
+  'Salt-Base Reaction':          'rgba(200,230,255,0.8)',
+  'No Significant Reaction':     'rgba(200,200,200,0.5)',
+  'No Significant Reaction / Unknown': 'rgba(200,200,200,0.5)',
+};
+
+function animateBeakers(ca, cb, rx) {
+  const stage = document.getElementById('beakerStage');
+  stage.style.display = 'flex';
+  const colA = chemColors[ca.cat] || chemColors.reagent;
+  const colB = chemColors[cb.cat] || chemColors.reagent;
+  const resultCol = reactionColors[rx.type] || 'rgba(180,220,180,0.8)';
+  const hasBubbles = rx.type.includes('Redox') || rx.type.includes('Displacement') || rx.observations.toLowerCase().includes('gas') || rx.observations.toLowerCase().includes('bubble');
+
+  document.getElementById('beakerLabelA').textContent = ca.formula;
+  document.getElementById('beakerLabelB').textContent = cb.formula;
+  document.getElementById('liquidA').style.background = colA.liquid;
+  document.getElementById('liquidB').style.background = colB.liquid;
+
+  // Animate: pour A into B
+  setTimeout(() => {
+    document.getElementById('liquidA').style.height = '15%';
+    document.getElementById('liquidB').style.background = resultCol;
+    document.getElementById('liquidB').style.height = '70%';
+    if (hasBubbles) spawnBubbles();
+  }, 600);
+}
+
+function spawnBubbles() {
+  const container = document.getElementById('bubbles');
+  container.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = 4 + Math.random() * 8;
+    b.style.cssText = `width:${size}px;height:${size}px;left:${10+Math.random()*60}%;bottom:${Math.random()*30}%;animation-duration:${0.8+Math.random()*1.2}s;animation-delay:${Math.random()*0.8}s`;
+    container.appendChild(b);
+  }
+}
+
+function resetBeakers() {
+  const stage = document.getElementById('beakerStage');
+  stage.style.display = 'none';
+  document.getElementById('liquidA').style.height = '55%';
+  document.getElementById('liquidB').style.height = '55%';
+  document.getElementById('bubbles').innerHTML = '';
+}
+
+// ══════════════════════════════════════════════════════════════
+// PRINT / PDF EXPORT FOR EXPERIMENT PROCEDURES
+// ══════════════════════════════════════════════════════════════
+function printProcedure(chemName) {
+  window.print();
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOCALSTORAGE — SAVE & RESTORE STOCK DATA
+// ══════════════════════════════════════════════════════════════
+function saveStock() {
+  localStorage.setItem('sjcit-stock', JSON.stringify(stockData));
+  showToast('Stock data saved to browser ✓');
+}
+function loadStock() {
+  const saved = localStorage.getItem('sjcit-stock');
+  if (!saved) { showToast('No saved stock data found.'); return; }
+  try {
+    const parsed = JSON.parse(saved);
+    Object.assign(stockData, parsed);
+    renderStock();
+    if (activeTab === 'chemicals') render();
+    showToast('Stock data restored ✓');
+  } catch { showToast('Failed to restore stock data.'); }
+}
+(function autoLoadStock() {
+  const saved = localStorage.getItem('sjcit-stock');
+  if (saved) { try { Object.assign(stockData, JSON.parse(saved)); } catch {} }
+})();
+
+// ══════════════════════════════════════════════════════════════
+// TOAST NOTIFICATION
+// ══════════════════════════════════════════════════════════════
+function showToast(msg) {
+  let t = document.getElementById('sjcToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sjcToast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--surface);padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.25);transition:opacity 0.3s;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// PATCH runReaction to trigger beaker animation
+// ══════════════════════════════════════════════════════════════
+const _origRunReaction = runReaction;
+runReaction = function() {
+  resetBeakers();
+  _origRunReaction();
+  // Trigger animation after result renders
+  setTimeout(() => {
+    const a = document.getElementById('rxnA').value;
+    const b = document.getElementById('rxnB').value;
+    if (!a || !b) return;
+    const ca = chemicals.find(c=>c.name===a);
+    const cb = chemicals.find(c=>c.name===b);
+    const rx = lookupReaction(a, b);
+    if (ca && cb && rx) animateBeakers(ca, cb, rx);
+  }, 50);
+};
+
+// ══════════════════════════════════════════════════════════════
+// PATCH renderExpContent to add Print button
+// ══════════════════════════════════════════════════════════════
+const _origRenderExpContent = renderExpContent;
+renderExpContent = function(name) {
+  _origRenderExpContent(name);
+  const content = document.getElementById('expContent');
+  const header = content.querySelector('div[style*="margin-bottom:16px"]');
+  if (header) {
+    const btn = document.createElement('button');
+    btn.className = 'print-btn';
+    btn.innerHTML = '🖨 Print / Save PDF';
+    btn.onclick = () => printProcedure(name);
+    btn.style.marginTop = '8px';
+    header.appendChild(btn);
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
+// MOLECULE CANVAS BACKGROUND ANIMATION
+// ══════════════════════════════════════════════════════════════
+(function initMolecules() {
+  const canvas = document.getElementById('moleculeCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes = [], animId;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function Node() {
+    this.x  = Math.random() * W;
+    this.y  = Math.random() * H;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+    this.r  = 2 + Math.random() * 2.5;
+    this.color = Math.random() > 0.5 ? '#00e5a0' : '#00b8ff';
+  }
+
+  function init() {
+    resize();
+    nodes = [];
+    const count = Math.min(60, Math.floor(W * H / 18000));
+    for (let i = 0; i < count; i++) nodes.push(new Node());
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // Draw bonds
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 140) {
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = `rgba(0,229,160,${0.18 * (1 - dist/140)})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+    // Draw atoms
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = n.color;
+      ctx.shadowColor = n.color;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+  }
+
+  function update() {
+    nodes.forEach(n => {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    });
+  }
+
+  function loop() { update(); draw(); animId = requestAnimationFrame(loop); }
+
+  window.addEventListener('resize', () => { init(); });
+  init();
+  loop();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// INTERACTIVE ENHANCEMENTS
+// ══════════════════════════════════════════════════════════════
+
+// 1. RIPPLE EFFECT — on all buttons and clickable chips
+function addRipple(el) {
+  el.classList.add('ripple-host');
+  el.addEventListener('click', function(e) {
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const rect = el.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.width = r.style.height = size + 'px';
+    r.style.left = (e.clientX - rect.left - size/2) + 'px';
+    r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+    el.appendChild(r);
+    r.addEventListener('animationend', () => r.remove());
+  });
+}
+document.querySelectorAll('.btn-primary,.btn-secondary,.nav-tab,.filter-btn,.qp-chip,.export-btn,.ask-btn,.print-btn,.theme-toggle').forEach(addRipple);
+
+// 3. SCROLL REVEAL — observe cards, panels, stats
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+function observeReveal() {
+  document.querySelectorAll('.stat,.card,.exp-card,.stock-sum-card,.rxn-panel,.exp-content,.exp-list').forEach((el, i) => {
+    if (!el.classList.contains('reveal')) {
+      el.classList.add('reveal');
+      el.style.transitionDelay = (i % 8) * 0.05 + 's';
+      revealObserver.observe(el);
+    }
+  });
+}
+// Re-run after render
+const _origRender = render;
+render = function() { _origRender.apply(this, arguments); setTimeout(observeReveal, 50); };
+observeReveal();
+
+// 4. TOOLTIP on data-tip elements
+(function() {
+  const tip = document.createElement('div');
+  tip.className = 'sjc-tooltip';
+  document.body.appendChild(tip);
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el) return;
+    tip.textContent = el.dataset.tip;
+    tip.classList.add('show');
+  });
+  document.addEventListener('mousemove', e => {
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 28) + 'px';
+  });
+  document.addEventListener('mouseout', e => {
+    if (!e.target.closest('[data-tip]')) tip.classList.remove('show');
+  });
+})();
+
+// 7. ADD data-tip to hazard badges and category badges dynamically
+const _origRender2 = render;
+render = function() {
+  _origRender2.apply(this, arguments);
+  setTimeout(() => {
+    document.querySelectorAll('.haz-badge').forEach(el => {
+      const h = el.textContent.trim().toLowerCase();
+      el.dataset.tip = h === 'high' ? '⚠ High hazard — handle with extreme care' : h === 'medium' ? '⚠ Medium hazard — standard precautions' : '✓ Low hazard — routine precautions';
+    });
+    document.querySelectorAll('.cat-badge').forEach(el => {
+      const c = el.textContent.trim().toLowerCase();
+      el.dataset.tip = {acid:'Acid — corrosive, pH < 7', base:'Base — corrosive, pH > 7', solvent:'Solvent — flammable, volatile', reagent:'Reagent — analytical/synthesis use'}[c] || c;
+    });
+  }, 80);
+};
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// SDS (SAFETY DATA SHEET) MODAL
+// ══════════════════════════════════════════════════════════════
+
+// SDS source URLs per chemical (PubChem SDS + ECHA + Sigma-Aldrich)
+function getSdsLinks(c) {
+  const name = encodeURIComponent(c.name);
+  const formula = encodeURIComponent(c.formula);
+  return [
+    {
+      icon: '🏛',
+      name: 'PubChem SDS',
+      desc: 'NIH — free, authoritative safety data',
+      url: `https://pubchem.ncbi.nlm.nih.gov/compound/${encodeURIComponent(c.name)}#section=Safety-and-Hazards`
+    },
+    {
+      icon: '🔬',
+      name: 'Sigma-Aldrich SDS',
+      desc: 'Detailed lab-grade safety data sheet',
+      url: `https://www.sigmaaldrich.com/IN/en/search#q=${name}&t=all&sort=relevance&b=re|Brand:SigmaAldrich`
+    },
+    {
+      icon: '�',
+      name: 'CAMEO Chemicals (NOAA)',
+      desc: 'Reactivity & emergency response data',
+      url: `https://cameochemicals.noaa.gov/search/simple?q=${name}`
+    }
+  ];
+}
+
+function openSdsModal(idx) {
+  const c = chemicals[idx];
+  const links = getSdsLinks(c);
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'sdsModal';
+  modal.innerHTML = `
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('sdsModal')">✕</button>
+      <div class="modal-title">📄 Safety Data Sheet</div>
+      <div class="modal-sub">${c.name} (${c.formula}) — select a source to view the full SDS</div>
+      <div class="sds-links">
+        ${links.map(l => `
+          <a class="sds-link-btn" href="${l.url}" target="_blank" rel="noopener">
+            <span class="sds-link-icon">${l.icon}</span>
+            <div class="sds-link-info">
+              <div class="sds-link-name">${l.name}</div>
+              <div class="sds-link-desc">${l.desc}</div>
+            </div>
+            <span style="color:var(--muted);font-size:12px">↗</span>
+          </a>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center">
+        Always verify SDS information with your institution's chemical supplier before use.
+      </div>
+    </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal('sdsModal'); });
+  document.body.appendChild(modal);
+}
+
+// ══════════════════════════════════════════════════════════════
+// QR CODE MODAL
+// ══════════════════════════════════════════════════════════════
+function openQrModal(idx) {
+  const c = chemicals[idx];
+  const sdsUrl = `https://pubchem.ncbi.nlm.nih.gov/compound/${encodeURIComponent(c.name)}#section=Safety-and-Hazards`;
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'qrModal';
+  modal.innerHTML = `
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('qrModal')">✕</button>
+      <div class="modal-title">📱 Bottle QR Code</div>
+      <div class="modal-sub">${c.name} (${c.formula}) — scan to open Safety Data Sheet</div>
+      <div class="qr-section">
+        <div class="qr-section-title">QR Code → SDS Link</div>
+        <div class="qr-wrap">
+          <div class="qr-canvas-wrap" id="qrCanvas"></div>
+          <div class="qr-info">
+            <div class="qr-label">
+              Scan this QR code with any phone camera to instantly open the Safety Data Sheet for <strong>${c.name}</strong>.<br><br>
+              Print and stick on the bottle for quick lab access.
+            </div>
+            <button class="qr-download-btn" onclick="downloadQr('${c.name.replace(/'/g,"\\'")}')">
+              ⬇ Download PNG
+            </button>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.8px">Links to</div>
+          <div style="font-size:11px;color:var(--accent);font-family:var(--font-mono);word-break:break-all">${sdsUrl}</div>
+        </div>
+      </div>
+    </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal('qrModal'); });
+  document.body.appendChild(modal);
+
+  // Generate QR code after modal is in DOM
+  setTimeout(() => {
+    const container = document.getElementById('qrCanvas');
+    if (!container) return;
+    new QRCode(container, {
+      text: sdsUrl,
+      width: 160, height: 160,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }, 50);
+}
+
+function downloadQr(chemName) {
+  const canvas = document.querySelector('#qrCanvas canvas');
+  const img    = document.querySelector('#qrCanvas img');
+  let src = null;
+  if (canvas) src = canvas.toDataURL('image/png');
+  else if (img) src = img.src;
+  if (!src) return;
+  const a = document.createElement('a');
+  a.href = src;
+  a.download = `QR_SDS_${chemName.replace(/\s+/g,'_')}.png`;
+  a.click();
+}
+
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// Close modals on Escape
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    closeModal('sdsModal');
+    closeModal('qrModal');
+    closeDetail();
+  }
+});
+render();
+</script>
+</body>
+</html>
